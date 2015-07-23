@@ -7,6 +7,7 @@ public class ArrayQueue<T> {
     private int size;
     private T[] queue;
     private int first, last;
+
     public ArrayQueue() {
         queue = (T[]) new Object[10];
     }
@@ -15,33 +16,54 @@ public class ArrayQueue<T> {
         queue = (T[]) new Object[capacity];
     }
 
-    public void enqueue(T item){
-        if(isFull())
-            resize(size * 2);
+    public void enqueue(T item) {
 
+        queue[last++] = item;
+        size++;
+        if (isFull())
+            resize(size * 2);
+        last %= queue.length;
 
     }
 
-    public void resize(int capacity){
+    public void resize(int capacity) {
         T[] newQueue = (T[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
-            newQueue[i] = queue[i];
+            newQueue[i] = queue[(i + first) % size];
         }
         queue = newQueue;
     }
-    public T dequeue(){
 
+    public T dequeue() {
+        if (isEmpty())
+            return null;
+        T item = queue[first];
+        queue[first] = null;
+        first++;
+        first = first % queue.length;
+        size--;
+        return item;
     }
 
-    public int size(){
+    public void traverse(){
+        if(isEmpty()) {
+            System.out.print("Empty");
+            return;
+        }
+            for (int i = 0; i < size; i++) {
+            System.out.print(queue[(i + first) % queue.length] + " ");
+        }
+    }
+
+    public int size() {
         return size;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return size == 0;
     }
 
-    private boolean isFull(){
+    private boolean isFull() {
         return size == queue.length;
     }
 

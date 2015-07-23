@@ -55,7 +55,11 @@ public class ArrayStack<T> {
     }
 
     public void traverse() {
-        for (int i = size - 1; i > 0; i--) {
+        if(isEmpty()) {
+            System.out.print("Empty");
+            return;
+        }
+        for (int i = size - 1; i > -1; i--) {
             System.out.print(stack[i] + " ");
         }
 

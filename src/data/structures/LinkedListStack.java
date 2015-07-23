@@ -41,6 +41,10 @@ public class LinkedListStack<T> {
     }
 
     public void traverse() {
+        if(isEmpty()) {
+            System.out.print("Empty");
+            return;
+        }
         Node<T> current = top;
         while (current != null) {
             System.out.print(current.value + " ");

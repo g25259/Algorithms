@@ -22,11 +22,13 @@ public class LinkedListQueue<T> {
     }
 
     public T dequeue() {
+        if(isEmpty())
+            return null;
         T item = first.value;
+        Node temp = first;
+        temp = null;
         first = first.next;
         size--;
-        if(isEmpty())
-            last = null;
         return item;
     }
 
@@ -38,6 +40,17 @@ public class LinkedListQueue<T> {
         return size == 0;
     }
 
+    public void traverse(){
+        if(isEmpty()) {
+            System.out.print("Empty");
+            return;
+        }
+        Node<T> current = first;
+        for (int i = 0; i < size; i++) {
+            System.out.print(current.value + " ");
+            current = current.next;
+        }
+    }
 
     class Node<T> {
         Node next;
