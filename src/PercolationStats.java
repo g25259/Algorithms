@@ -77,7 +77,7 @@ public class PercolationStats {
         return mean() + ((1.96 * stddev()) / Math.sqrt(experimentTimes));
     }
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         int N = Integer.parseInt(args[0]);
         int T = Integer.parseInt(args[1]);
         PercolationStats ps = new PercolationStats(N, T);
@@ -86,5 +86,5 @@ public class PercolationStats {
         StdOut.println("mean                    = " + ps.mean());
         StdOut.println("stddev                  = " + ps.stddev());
         StdOut.println("95% confidence interval = " + confidence);
-    }*/
+    }
 }
