@@ -1,5 +1,4 @@
 import java.util.Iterator;
-import java.util.function.Consumer;
 
 /**
  * Created by g2525_000 on 2015/7/24.
@@ -26,9 +25,9 @@ public class Deque<Item> implements Iterable<Item> {
         }
         Node<Item> newItem = new Node<>();
         newItem.value = item;
-        if (isEmpty())
+        if (isEmpty()) {
             first = last = newItem;
-        else {
+        } else {
             newItem.next = first;
             first.previous = newItem;
             first = newItem;
@@ -42,9 +41,9 @@ public class Deque<Item> implements Iterable<Item> {
         }
         Node<Item> newItem = new Node<>();
         newItem.value = item;
-        if (isEmpty())
+        if (isEmpty()) {
             first = last = newItem;
-        else {
+        } else {
             last.next = newItem;
             newItem.previous = last;
             last = newItem;
@@ -53,33 +52,43 @@ public class Deque<Item> implements Iterable<Item> {
     }          // add the item to the end
 
     public Item removeFirst() {
-        if (isEmpty())
+        if (isEmpty()) {
             throw new java.util.NoSuchElementException();
+        }
         Item item = first.value;
-        first = first.next;
         size--;
+        if (isEmpty()) {
+            first = last = null;
+        } else {
+            first = first.next;
+            first.previous = null;
+        }
         return item;
     }               // remove and return the item from the front
 
     public Item removeLast() {
-        if (isEmpty())
+        if (isEmpty()) {
             throw new java.util.NoSuchElementException();
+        }
         Item item = last.value;
-        last = last.previous;
+        size--;
+        if (isEmpty()) {
+            first = last = null;
+        } else {
+            last = last.previous;
+            last.next = null;
+        }
         return item;
     }                // remove and return the item from the end
 
-    public Node getFirst() {
-        return first;
-    }
 
     @Override
     public Iterator<Item> iterator() {
-        return new InnerIterator<>(first);
+        return new InnerIterator(first);
     }        // return an iterator over items in order from front to end
 
     private class InnerIterator<Item> implements Iterator {
-        Node<Item> current;
+        private Node<Item> current;
         private int size;
 
         public InnerIterator(Node first) {
@@ -94,6 +103,8 @@ public class Deque<Item> implements Iterable<Item> {
 
         @Override
         public Object next() {
+            if (!hasNext())
+                throw new java.util.NoSuchElementException();
             Node temp = current;
             current = current.next;
             size--;
@@ -101,7 +112,7 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         @Override
-        public void remove() {
+        public void remove() throws java.lang.UnsupportedOperationException {
             throw new java.lang.UnsupportedOperationException();
         }
     }
@@ -118,7 +129,12 @@ public class Deque<Item> implements Iterable<Item> {
         deque.addFirst(0.2);
         deque.addLast(0.3);
         deque.addLast(0.4);
-        for(Double item : deque){
+        deque.removeFirst();
+        deque.removeLast();
+        deque.removeLast();
+        deque.removeFirst();
+        //deque.removeFirst();
+        for (Double item : deque) {
             System.out.print(item + " ");
         }
 
