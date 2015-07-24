@@ -5,7 +5,7 @@
 public class Percolation {
     private boolean[][] grid;
     private WeightedQuickUnionUF uf;
-    private int top = 0;
+    private int top;
     private int bottom;
     private int size;
 
@@ -21,6 +21,9 @@ public class Percolation {
         size = N;
         uf = new WeightedQuickUnionUF(N * N + 2);
         grid = new boolean[N][N];
+        // Original input is a 2D graph(range from (1,1) to (N,N), we use xyTo1D method to project to 1D(range from 0 to N*N -1;.
+        //  So we use size *size as our top pseudo point, size * size +1 as our bottom.
+        top = size * size;
         bottom = size * size + 1;
 
     }
@@ -33,7 +36,7 @@ public class Percolation {
      * @return corresponding index
      */
     private int xyTo21D(int i, int j) {
-        return size * (i - 1) + j - 1;
+        return size * (i - 1) + j - 1 ;
     }
 
     /**
@@ -48,7 +51,7 @@ public class Percolation {
             return;
 
         if (i == 1) {
-            uf.union(top, j-1);
+            uf.union(top, j - 1);
         } else if (i == size) {
             uf.union(bottom, xyTo21D(size, j));
         }
@@ -115,12 +118,14 @@ public class Percolation {
     }
 
     public static void main(String[] args) {
+
         Percolation p = new Percolation(5);
-        System.out.println(p.uf.connected(p.xyTo21D(1,1),p.xyTo21D(1,2)));
+        System.out.println(p.isFull(1, 1));
+        System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
         p.open(1, 1);
         System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
         p.open(1, 2);
-        System.out.println(p.uf.connected(p.xyTo21D(1,1),p.xyTo21D(1,2)));
+        System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
 
     }
 }
