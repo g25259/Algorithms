@@ -9,14 +9,16 @@ public class Test {
         ArrayStack<Double> doubleArrayStack = new ArrayStack<>(10);
         LinkedListQueue<Double> doubleLinkedListQueue = new LinkedListQueue<>();
         ArrayQueue<Double> doubleArrayQueue = new ArrayQueue<>(10);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 40; i++) {
             double item = Math.random() * 10 + 1;
             doubleStack.push(item);
             doubleArrayStack.push(item);
             doubleLinkedListQueue.enqueue(item);
             doubleArrayQueue.enqueue(item);
             System.out.println(item);
+            System.out.println();
         }
+        System.out.println("Size : " + doubleArrayQueue.size());
 
         System.out.println(doubleStack.pop() + " " + doubleArrayStack.pop() +
                 " " + doubleLinkedListQueue.dequeue() + " " + doubleArrayQueue.dequeue());
