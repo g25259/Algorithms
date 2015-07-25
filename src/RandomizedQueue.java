@@ -5,8 +5,6 @@ import java.util.Iterator;
  */
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private Item[] queue;
-    private int first;
-    private int last;
     private int size;
 
     public RandomizedQueue() {
@@ -25,46 +23,35 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (item == null)
             throw new java.lang.NullPointerException();
 
-        queue[last++] = item;
-        size++;
-
+        queue[size++] = item;
         if (size == queue.length)
             resize(size * 2);
-
-        last %= queue.length;
 
     }          // add the item
 
     private void resize(int capacity) {
         Item[] newQueue = (Item[]) new Object[capacity];
-        if(last < first && size != queue.length){
-            for (int i = 0; i < first - last - 1; i++) {
-                queue[first + i -1] = queue[first + i];
-            }
-        }
-        StdRandom.shuffle(queue, 0, size - 1);
 
         for (int i = 0; i < size; i++) {
-            newQueue[i] = queue[(i + first) % size];
+            newQueue[i] = queue[i];
         }
-        first = 0;
-        last = size;
         queue = newQueue;
     }
 
     public Item dequeue() {
         if (isEmpty())
             throw new java.util.NoSuchElementException();
-        Item item = queue[first++];
-        size--;
-        if (size > 0 && size == queue.length / 4)
-            resize(queue.length / 2);
-        first = first % queue.length;
+        int r = StdRandom.uniform(0, size);
+        Item item = queue[r];
+        queue[r] = queue[--size];
+        queue[size] = null;
         return item;
     }                   // remove and return a random item
 
     public Item sample() {
-        return queue[size];
+        if (isEmpty())
+            throw new java.util.NoSuchElementException();
+        return queue[StdRandom.uniform(0, size)];
     }                    // return (but do not remove) a random item
 
     public Iterator<Item> iterator() {
@@ -79,15 +66,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             size = size();
             queueIterator = (Item[]) new Object[size];
             for (int i = 0; i < size; i++) {
-                queueIterator[i] = queue[(first + i) % queue.length];
+                queueIterator[i] = queue[i];
             }
-            StdRandom.shuffle(queueIterator, 0, size - 1);
+            if(size > 0)
+                StdRandom.shuffle(queueIterator, 0, size - 1);
 
         }
 
         @Override
         public boolean hasNext() {
-            return size > 0;
+            return size >= 0;
         }
 
         @Override
