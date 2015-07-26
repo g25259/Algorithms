@@ -5,6 +5,7 @@
 public class Percolation {
     private boolean[][] grid;
     private WeightedQuickUnionUF uf;
+    private WeightedQuickUnionUF uf_backwash;
     private int top;
     private int bottom;
     private int size;
@@ -20,6 +21,7 @@ public class Percolation {
         }
         size = N;
         uf = new WeightedQuickUnionUF(N * N + 2);
+        uf_backwash = new WeightedQuickUnionUF(N * N + 2);
         grid = new boolean[N][N];
         // Original input is a 2D graph(range from (1,1) to (N,N), we use xyTo1D method to project to 1D(range from 0 to N*N -1;.
         //  So we use size *size as our top pseudo point, size * size +1 as our bottom.
@@ -36,7 +38,7 @@ public class Percolation {
      * @return corresponding index
      */
     private int xyTo21D(int i, int j) {
-        return size * (i - 1) + j - 1 ;
+        return size * (i - 1) + j - 1;
     }
 
     /**
@@ -52,17 +54,29 @@ public class Percolation {
 
         if (i == 1) {
             uf.union(top, j - 1);
-        } else if (i == size) {
+            uf_backwash.union(top, j - 1);
+        }
+        if (i == size) {
             uf.union(bottom, xyTo21D(size, j));
         }
-        if (j > 1 && isOpen(i, j - 1))
+        if (j > 1 && isOpen(i, j - 1)) {
             uf.union(xyTo21D(i, j), xyTo21D(i, j - 1));
-        if (j < size && isOpen(i, j + 1))
+            uf_backwash.union(xyTo21D(i, j), xyTo21D(i, j - 1));
+        }
+        if (j < size && isOpen(i, j + 1)) {
             uf.union(xyTo21D(i, j), xyTo21D(i, j + 1));
-        if (i > 1 && isOpen(i - 1, j))
+            uf_backwash.union(xyTo21D(i, j), xyTo21D(i, j + 1));
+        }
+
+
+        if (i > 1 && isOpen(i - 1, j)) {
             uf.union(xyTo21D(i, j), xyTo21D(i - 1, j));
-        if (i < size && isOpen(i + 1, j))
+            uf_backwash.union(xyTo21D(i, j), xyTo21D(i - 1, j));
+        }
+        if (i < size && isOpen(i + 1, j)) {
             uf.union(xyTo21D(i, j), xyTo21D(i + 1, j));
+            uf_backwash.union(xyTo21D(i, j), xyTo21D(i + 1, j));
+        }
 
         grid[i - 1][j - 1] = true;
 
@@ -101,7 +115,7 @@ public class Percolation {
      */
     public boolean isFull(int i, int j) {
         validate(i, j);
-        if (uf.connected(top, xyTo21D(i, j)))
+        if (uf_backwash.connected(top, xyTo21D(i, j)))
             return true;
         return false;
     }
@@ -119,14 +133,17 @@ public class Percolation {
 
     public static void main(String[] args) {
 
-        Percolation p = new Percolation(5);
+        Percolation p = new Percolation(1);
+        p.open(1, 1);
+        System.out.println(p.percolates());
+        /*
         System.out.println(p.isFull(1, 1));
         System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
         p.open(1, 1);
         System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
         p.open(1, 2);
         System.out.println(p.uf.connected(p.xyTo21D(1, 1), p.xyTo21D(1, 2)));
-
+*/
     }
 }
 

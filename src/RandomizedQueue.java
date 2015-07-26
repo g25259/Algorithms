@@ -45,6 +45,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Item item = queue[r];
         queue[r] = queue[--size];
         queue[size] = null;
+        if(size > 0 && size == queue.length / 4)
+            resize(queue.length / 2);
         return item;
     }                   // remove and return a random item
 
@@ -75,7 +77,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         @Override
         public boolean hasNext() {
-            return size >= 0;
+            return size > 0;
         }
 
         @Override
