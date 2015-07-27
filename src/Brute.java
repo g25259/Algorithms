@@ -22,7 +22,7 @@ public class Brute {
                 double slope12 = points[i].slopeTo(points[j]);
                 for (int k = j + 1; k < N; k++) {
                     double slope13 = points[i].slopeTo(points[k]);
-                    if (slope12 != slope13) break;
+                    if (slope12 != slope13) continue;
                     for (int l = k + 1; l < N; l++) {
                         double slope14 = points[i].slopeTo(points[l]);
                         if (slope12 == slope14) {
