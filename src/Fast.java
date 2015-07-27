@@ -1,6 +1,6 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
+
 
 /**
  * Created by MingJe on 2015/7/27.
@@ -41,7 +41,7 @@ public class Fast {
                 }
                 if (cuSlope.equals(preSlope)) {
                     collinear++;
-                    if (collinear == 3) startIndex = i;
+                    if (collinear == 3) startIndex = j - 1;
                 }
                 if (!cuSlope.equals(preSlope) || j == N - 1) {
                     if (collinear >= 4) {
@@ -52,9 +52,11 @@ public class Fast {
                         if (isPrint) isPrint = false;
                         else {
                             Point[] collinearPoints = new Point[collinear];
-                            for (int k = 0; k < collinear; k++) {
-                                collinearPoints[k] = points[startIndex + k];
+                            collinearPoints[0] = copyPoints[i];
+                            for (int k = 1; k < collinear; k++) {
+                                collinearPoints[k] = points[startIndex + k - 1];
                             }
+                            Arrays.sort(collinearPoints);
                             collinearPoints[0].drawTo(collinearPoints[collinearPoints.length - 1]);
                             for (int m = 0; m < collinearPoints.length; m++) {
                                 if (m == collinearPoints.length - 1)
@@ -62,8 +64,10 @@ public class Fast {
                                 else
                                     StdOut.print(collinearPoints[m] + " -> ");
                             }
+                            headPoints.add(collinearPoints[0]);
                             StdOut.println();
                         }
+                        collinear = 2;
                     } else if (collinear == 3) {
                         collinear = 2;
                     }
@@ -71,29 +75,6 @@ public class Fast {
                 }
                 preSlope = cuSlope;
             }
-            /*if (collinear >= 4) {
-
-                for (int k = 0; k < headPoints.size(); k++) {
-                    double printedSlope = headPoints.get(k).slopeTo(points[startIndex]);
-                    if (printedSlope == preSlope) isPrint = true;
-                }
-                if (isPrint) isPrint = false;
-                else {
-                    Point[] collinearPoints = new Point[collinear];
-                    for (int k = 0; k < collinear; k++) {
-                        collinearPoints[k] = points[startIndex + k];
-                    }
-                    collinearPoints[0].drawTo(collinearPoints[collinearPoints.length - 1]);
-                    for (int m = 0; m < collinearPoints.length; m++) {
-                        if (m == collinearPoints.length - 1)
-                            StdOut.print(collinearPoints[m]);
-                        else
-                            StdOut.print(collinearPoints[m] + " -> ");
-                    }
-                    StdOut.println();
-                }
-            }*/
-
         }
 
     }
