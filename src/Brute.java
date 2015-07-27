@@ -10,12 +10,16 @@ public class Brute {
         int N = in.readInt();
         Point[] points = new Point[N];
         int n = 0;
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
         while (!in.isEmpty()) {
             int x = in.readInt();
             int y = in.readInt();
             points[n] = new Point(x, y);
+            points[n].draw();
             n++;
         }
+
         Arrays.sort(points);
         for (int i = 0; i < N; i++) {
             for (int j = i + 1; j < N; j++) {
@@ -35,6 +39,7 @@ public class Brute {
                                     StdOut.print(collinear[m] + " -> ");
                             }
                             StdOut.println();
+                            collinear[0].drawTo(collinear[3]);
                         }
                     }
                 }

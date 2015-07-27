@@ -8,64 +8,59 @@ public class Fast {
         In in = new In(args[0]);
         int N = in.readInt();
         Point[] points = new Point[N];
-        Point[] copyPoint = new Point[N];
+        Point[] copyPoints = new Point[N];
         int n = 0;
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
         while (!in.isEmpty()) {
             int x = in.readInt();
             int y = in.readInt();
             points[n] = new Point(x, y);
+            points[n].draw();
             n++;
         }
         Arrays.sort(points);
         for (int i = 0; i < N; i++) {
-            copyPoint[i] = points[i];
+            copyPoints[i] = points[i];
         }
 
-        for (int i = 0; i < points.length - 4; i++) {
+        for (int i = 0; i < N; i++) {
             Arrays.sort(points);
-            Arrays.sort(points, i + 1, N - 1, copyPoint[i].SLOPE_ORDER);
-            int collinear = 1;
-            int startIndex = -1;
-            Double preSlope = copyPoint[i].slopeTo(points[i+1]);
-            for (int j = i + 2; j < points.length; j++) {
-                Double cuSlope = points[j].slopeTo(copyPoint[i]);
-                if (preSlope.equals(cuSlope)) {
+            Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
+            int collinear = 2;
+            Double preSlope = 0.0;
+            int startIndex = 0;
+            for (int j = i + 1; j < N; j++) {
+                Double cuSlope = copyPoints[i].slopeTo(points[j]);
+                if (i == j - 1) {
+                    preSlope = cuSlope;
+                    continue;
+                }
+                if (cuSlope.equals(preSlope)) {
                     collinear++;
-                    if (collinear == 2) {
-                        startIndex = j - 1;
-                    }
+                    if(collinear == 3) startIndex = i;
+
                 } else {
-                    if (collinear >= 4) {
-                        Point[] collinearP = new Point[collinear];
+                    if( collinear >= 4)
+                    {
+                        Point[] collinearPoints = new Point[collinear];
                         for (int k = 0; k < collinear; k++) {
-                            collinearP[k] = points[startIndex + k];
+                            collinearPoints[k] = points[startIndex + k];
                         }
-                        Arrays.sort(collinearP);
-                        for (int m = 0; m < collinearP.length; m++) {
-                            if (m == collinearP.length - 1)
-                                StdOut.print(collinearP[m]);
-                            else
-                                StdOut.print(collinearP[m] + " -> ");
-                        }
+                        collinearPoints[0].drawTo(collinearPoints[collinearPoints.length]);
+                    } else if (collinear == 3){
+                        collinear = 2;
                     }
-                    collinear = 1;
+
                 }
                 preSlope = cuSlope;
+            }
+            if( collinear >= 4)
+            {
+                StdOut.print(collinear);
+            }
 
-            }
-            if (collinear >= 4) {
-                Point[] collinearP = new Point[collinear];
-                for (int k = 0; k < collinear; k++) {
-                    collinearP[k] = points[startIndex + k];
-                }
-                Arrays.sort(collinearP);
-                for (int m = 0; m < collinearP.length; m++) {
-                    if (m == collinearP.length - 1)
-                        StdOut.print(collinearP[m]);
-                    else
-                        StdOut.print(collinearP[m] + " -> ");
-                }
-            }
         }
+
     }
 }
