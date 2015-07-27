@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by MingJe on 2015/7/27.
@@ -23,13 +25,14 @@ public class Fast {
         for (int i = 0; i < N; i++) {
             copyPoints[i] = points[i];
         }
-
+        List<Point> headPoints = new ArrayList<>();
         for (int i = 0; i < N; i++) {
             Arrays.sort(points);
             Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
             int collinear = 2;
             Double preSlope = 0.0;
             int startIndex = 0;
+            boolean isPrint = false;
             for (int j = i + 1; j < N; j++) {
                 Double cuSlope = copyPoints[i].slopeTo(points[j]);
                 if (i == j - 1) {
@@ -38,27 +41,58 @@ public class Fast {
                 }
                 if (cuSlope.equals(preSlope)) {
                     collinear++;
-                    if(collinear == 3) startIndex = i;
-
-                } else {
-                    if( collinear >= 4)
-                    {
-                        Point[] collinearPoints = new Point[collinear];
-                        for (int k = 0; k < collinear; k++) {
-                            collinearPoints[k] = points[startIndex + k];
+                    if (collinear == 3) startIndex = i;
+                }
+                if (!cuSlope.equals(preSlope) || j == N - 1) {
+                    if (collinear >= 4) {
+                        for (int k = 0; k < headPoints.size(); k++) {
+                            double printedSlope = headPoints.get(k).slopeTo(points[startIndex]);
+                            if (printedSlope == preSlope) isPrint = true;
                         }
-                        collinearPoints[0].drawTo(collinearPoints[collinearPoints.length]);
-                    } else if (collinear == 3){
+                        if (isPrint) isPrint = false;
+                        else {
+                            Point[] collinearPoints = new Point[collinear];
+                            for (int k = 0; k < collinear; k++) {
+                                collinearPoints[k] = points[startIndex + k];
+                            }
+                            collinearPoints[0].drawTo(collinearPoints[collinearPoints.length - 1]);
+                            for (int m = 0; m < collinearPoints.length; m++) {
+                                if (m == collinearPoints.length - 1)
+                                    StdOut.print(collinearPoints[m]);
+                                else
+                                    StdOut.print(collinearPoints[m] + " -> ");
+                            }
+                            StdOut.println();
+                        }
+                    } else if (collinear == 3) {
                         collinear = 2;
                     }
 
                 }
                 preSlope = cuSlope;
             }
-            if( collinear >= 4)
-            {
-                StdOut.print(collinear);
-            }
+            /*if (collinear >= 4) {
+
+                for (int k = 0; k < headPoints.size(); k++) {
+                    double printedSlope = headPoints.get(k).slopeTo(points[startIndex]);
+                    if (printedSlope == preSlope) isPrint = true;
+                }
+                if (isPrint) isPrint = false;
+                else {
+                    Point[] collinearPoints = new Point[collinear];
+                    for (int k = 0; k < collinear; k++) {
+                        collinearPoints[k] = points[startIndex + k];
+                    }
+                    collinearPoints[0].drawTo(collinearPoints[collinearPoints.length - 1]);
+                    for (int m = 0; m < collinearPoints.length; m++) {
+                        if (m == collinearPoints.length - 1)
+                            StdOut.print(collinearPoints[m]);
+                        else
+                            StdOut.print(collinearPoints[m] + " -> ");
+                    }
+                    StdOut.println();
+                }
+            }*/
 
         }
 
