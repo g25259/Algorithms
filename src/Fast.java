@@ -14,6 +14,7 @@ public class Fast {
         int n = 0;
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
+        StdDraw.show(0);
         while (!in.isEmpty()) {
             int x = in.readInt();
             int y = in.readInt();
@@ -27,13 +28,17 @@ public class Fast {
         }
         List<Point> headPoints = new ArrayList<>();
         for (int i = 0; i < N; i++) {
-            Arrays.sort(points);
+            for (int m = 0; m < N; m++) {
+                points[m] = copyPoints[m];
+            }
             Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
             int collinear = 2;
             Double preSlope = 0.0;
             int startIndex = 0;
+            Point lastPoint = copyPoints[i];
             boolean isPrint = false;
             for (int j = i + 1; j < N; j++) {
+
                 Double cuSlope = copyPoints[i].slopeTo(points[j]);
                 if (i == j - 1) {
                     preSlope = cuSlope;
@@ -41,12 +46,13 @@ public class Fast {
                 }
                 if (cuSlope.equals(preSlope)) {
                     collinear++;
+                    //if(points[j].compareTo(copyPoints[i]) <= 0) lastPoint = points[j];
                     if (collinear == 3) startIndex = j - 1;
                 }
                 if (!cuSlope.equals(preSlope) || j == N - 1) {
                     if (collinear >= 4) {
                         for (int k = 0; k < headPoints.size(); k++) {
-                            double printedSlope = headPoints.get(k).slopeTo(points[startIndex]);
+                            double printedSlope = headPoints.get(k).slopeTo(copyPoints[i]);
                             if (printedSlope == preSlope) isPrint = true;
                         }
                         if (isPrint) isPrint = false;
@@ -76,6 +82,6 @@ public class Fast {
                 preSlope = cuSlope;
             }
         }
-
+        StdDraw.show(0);
     }
 }
