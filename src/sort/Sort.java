@@ -21,43 +21,45 @@ public class Sort {
     }
 
     public static void InsertionSort(Comparable[] array) {
-        for (int i = 0; i < array.length - 1; i++) {
+        for (int i = 0; i < array.length; i++) {
+            int j = i;
             Comparable movingElement = array[i];
-            int j = i + 1;
-            for (; j < array.length; j++) {
-                if(movingElement.compareTo(array[j]) > 0)
-                    array[j - 1] = array[j];
+            for (; j > 0; j--) {
+                if (movingElement.compareTo(array[j - 1]) < 0)
+                    array[j] = array[j - 1];
                 else
                     break;
             }
-            array[j - 1] = movingElement;
+            array[j] = movingElement;
         }
     }
 
     public static void MergeSort(Comparable[] array) {
         Comparable[] aux = new Comparable[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++)
             aux[i] = array[i];
-        }
         Sort(array, aux, 0, array.length - 1);
     }
 
-    private static void Sort(Comparable[] array, Comparable[] aux, int hi, int lo) {
+    private static void Sort(Comparable[] array, Comparable[] aux, int lo, int hi) {
+
         if (lo >= hi) return;
-        int mid = (hi - lo) / 2;
-        Sort(aux, array, lo, mid);
-        Sort(aux, array, mid + 1, hi);
+        int mid = lo + (hi - lo) / 2;
+        Sort(array, aux, lo, mid);
+        Sort(array, aux, mid + 1, hi);
         if (array[mid].compareTo(array[mid + 1]) < 0) return;
-        merge(array, aux, lo, hi, mid);
+        merge(array, aux, lo, mid, hi);
     }
 
-    private static void merge(Comparable[] array, Comparable[] auxArray, int hi, int lo, int mid) {
+    private static void merge(Comparable[] array, Comparable[] auxArray, int lo, int mid, int hi) {
+        for (int i = lo; i <= hi; i++)
+            auxArray[i] = array[i];
         int i = lo, j = mid + 1;
         for (int k = lo; k <= hi; k++) {
-            if (i > mid) auxArray[k++] = array[j++];
-            else if (j > hi) auxArray[k++] = array[i++];
-            else if (array[i].compareTo(array[j]) < 0) auxArray[k++] = array[i++];
-            else auxArray[k++] = array[j++];
+            if (i > mid) array[k] = auxArray[j++];
+            else if (j > hi) array[k] = auxArray[i++];
+            else if (auxArray[j].compareTo(auxArray[i]) < 0) array[k] = auxArray[j++];
+            else array[k] = auxArray[i++];
         }
 
     }
@@ -69,14 +71,13 @@ public class Sort {
             shuffle(array);
             int index = tukeyNinther(array);
             swap(array, 0, index);
-            qSort(array, 0, array.length);
+            qSort(array, 0, array.length - 1);
         }
 
     }
 
     private static void qSort(Comparable[] array, int lo, int hi) {
         if (lo >= hi) return;
-
         int i = lo;
         int lt = lo, gt = hi;
         Comparable pivot = array[lo];
@@ -171,8 +172,12 @@ public class Sort {
         System.out.println(Arrays.toString(array));
 
         shuffle(array);
-        //QuickSort(array);
+        QuickSort(array);
         System.out.println(Arrays.toString(array));
+        int x = 12, y = 2;
+        int x1 = 1, y1 = 3;
+        double result = (double) (y1 - y) / (x1 - x);
+        System.out.println(result);
 
 
     }
