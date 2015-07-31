@@ -2,10 +2,12 @@ import java.util.Comparator;
 
 public class Point implements Comparable<Point> {
 
+
     // compare points by slope
     public final Comparator<Point> SLOPE_ORDER = new Comparator<Point>() {
         @Override
         public int compare(Point o1, Point o2) {
+
             double slope1, slope2;
             slope1 = slopeTo(o1);
             slope2 = slopeTo(o2);
@@ -39,11 +41,16 @@ public class Point implements Comparable<Point> {
 
     // slope between this point and that point
     public double slopeTo(Point that) {
-        final double result = (double) (that.y - this.y) / (that.x - this.x);
-        if (Double.isInfinite(result)) return Double.POSITIVE_INFINITY;
-        else if (Double.isNaN((result))) return Double.NEGATIVE_INFINITY;
-        else if (this.y == that.y) return +0;
-        else return result;
+
+        if (this.y == that.y && this.x == that.x) {
+            return Double.NEGATIVE_INFINITY;
+        } else if (this.y == that.y) {
+            return +0d;
+        } else if (this.x == that.x) {
+            return Double.POSITIVE_INFINITY;
+        } else {
+            return (double) (that.y - this.y) / (double) (that.x - this.x);
+        }
     }
 
     // is this point lexicographically smaller than that one?
