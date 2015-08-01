@@ -7,6 +7,7 @@ public class Board {
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
     final int[] blocks;
+    private final boolean isGoal;
     private final int N;
     private final int hammingDistance;
     private final int manhattanDistance;
@@ -24,6 +25,7 @@ public class Board {
         hammingDistance = initHamming();
         manhattanDistance = initManhattan();
         blankIndex = findBlank();
+        isGoal = initIsGoal();
     }
 
     // board dimension N
@@ -65,8 +67,12 @@ public class Board {
         int manhattanDistance = 0;
         for (int i = 0; i < N * N; i++) {
             if (blocks[i] == 0) continue;
-            if (blocks[i] != i)
-                manhattanDistance += Math.abs(i - blocks[i]);
+            if (blocks[i] != (i+1)) {
+                int diffRow = Math.abs((blocks[i]-1) / N - i / N);
+                int diffCol = Math.abs((blocks[i]-1) % N - i % N);
+                manhattanDistance += diffRow + diffCol;
+            }
+
 
         }
         return manhattanDistance;
@@ -74,12 +80,17 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
+        return isGoal;
+    }
+
+    private boolean initIsGoal(){
         int count = 1;
-        for (int i = 0; i < N * N; i++) {
+        for (int i = 0; i < N * N - 1; i++) {
             if (blocks[i] == 0) continue;
-            if (blocks[i] != count) return false;
+            if (blocks[i] != count++) return false;
         }
         return true;
+
     }
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
@@ -140,7 +151,7 @@ public class Board {
             neighbors.enqueue(new Board(twinBlocks));
             swap(twinBlocks, col, row - 1, row, true);
         }
-        if (row == N - 1) {
+        if (row != N - 1) {
             swap(twinBlocks, col, row + 1, row, true);
             neighbors.enqueue(new Board(twinBlocks));
             swap(twinBlocks, col, row + 1, row, true);
@@ -185,6 +196,12 @@ public class Board {
         StdOut.print(initial);
         StdOut.println("Hamming : " + initial.hamming());
         StdOut.println("Manhattan : " + initial.manhattan());
+        StdOut.println("Twin : " + initial.twin());
+        StdOut.println("Goal : " + initial.isGoal());
+        StdOut.println("equal : " + initial.equals(initial));
+        StdOut.println("equal : " + initial.equals(initial.twin()));
+        for(Board neghibor : initial.neighbors())
+            StdOut.print(neghibor);
 
     }
 }
