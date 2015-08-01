@@ -26,12 +26,63 @@ public class Fast {
         for (int i = 0; i < N; i++) {
             copyPoints[i] = points[i];
         }
-        List<Point> headPoints = new ArrayList<>();
+        List<List<Point>> allLine = new ArrayList<>();
+
         for (int i = 0; i < N; i++) {
             for (int m = 0; m < N; m++) {
-                points[m] = copyPoints[m];
+                if (m < i) points[m] = copyPoints[m];
+                else if (m > i) points[m - 1] = copyPoints[m];
+            }
+            List<Point> line = new ArrayList<>();
+            line.add(copyPoints[i]);
+            int collinear = 2;
+            Arrays.sort(points, 0, N - 1, copyPoints[i].SLOPE_ORDER);
+            double preSlope = points[0].slopeTo(copyPoints[i]);
+            int startIndex = 0;
+            for (int j = 1; j < N - 1; j++) {
+
+                double cuSlope = points[j].slopeTo(copyPoints[i]);
+                if (cuSlope == Double.POSITIVE_INFINITY){
+
+                }
+                int cmp = Double.compare(cuSlope, preSlope);
+                if (cmp == 0) {
+                    if (collinear == 2) startIndex = j - 1;
+                    collinear++;
+                }
+                if (cmp != 0 || j == N - 2) {
+                    if (collinear > 3) {
+                        for (int k = startIndex; k < startIndex + collinear - 1; k++) {
+                            line.add(points[k]);
+                        }
+                        allLine.add(line);
+                        line = new ArrayList<>();
+                        line.add(copyPoints[i]);
+                    }
+                    preSlope = cuSlope;
+                    collinear = 2;
+                }
+
+            }
+
+        }
+        for (int i = 0; i < allLine.size(); i++) {
+            List<Point> line = allLine.get(i);
+            boolean printed = false;
+            if (line.get(0).compareTo(line.get(1)) > 0) continue;
+            printed = true;
+            for (int j = 0; j < line.size() - 1; j++) {
+                StdOut.print(line.get(j) + " -> ");
+            }
+            if (printed) {
+                StdOut.println(line.get(line.size() - 1));
+                line.get(0).drawTo(line.get(line.size() - 1));
             }
         }
+        StdDraw.show(0);
+        //StdOut.print(Double.compare(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
+
+
     }
 }
             /*Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
