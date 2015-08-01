@@ -28,15 +28,18 @@ public class Fast {
         }
         List<Point> headPoints = new ArrayList<>();
         for (int i = 0; i < N; i++) {
-            for (int m = i; m < N; m++) {
+            for (int m = 0; m < N; m++) {
                 points[m] = copyPoints[m];
             }
-            Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
+        }
+    }
+}
+            /*Arrays.sort(points, i + 1, N, copyPoints[i].SLOPE_ORDER);
             int collinear = 2;
             Double preSlope = 0.0;
             int startIndex = 0;
             boolean isPrint = false;
-            for (int j = i + 1; j < N; j++) {
+            for (int j = 0; j < N; j++) {
 
                 Double cuSlope = copyPoints[i].slopeTo(points[j]);
                 if (i == j - 1) {
@@ -52,7 +55,7 @@ public class Fast {
                         /*for (int k = 0; k < headPoints.size(); k++) {
                             double printedSlope = headPoints.get(k).slopeTo(copyPoints[i]);
                             if (printedSlope == preSlope) isPrint = true;
-                        }*/
+                        }
                         if (isPrint) isPrint = false;
                         else {
                             Point[] collinearPoints = new Point[collinear];
@@ -83,3 +86,4 @@ public class Fast {
         StdDraw.show(0);
     }
 }
+*/

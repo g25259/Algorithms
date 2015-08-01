@@ -4,32 +4,38 @@ import java.util.*;
  * Created by MingJe on 2015/7/31.
  */
 public class Solver {
-    private final Comparator<Board> boardComparator = new Comparator<Board>() {
+    private static int insertCount = 0;
+    private static int delCount = 0;
+    private final Comparator<Node<Board>> boardComparator = new Comparator<Node<Board>>() {
         @Override
-        public int compare(Board o1, Board o2) {
-            int o1Priority = o1.hamming() + o1.manhattan();
-            int o2Priority = o2.hamming() + o2.manhattan();
+        public int compare(Node o1, Node o2) {
+            Board ob1 = (Board) o1.value;
+            Board ob2 = (Board) o2.value;
+            int o1Priority = ob1.manhattan() + o1.moved;
+            int o2Priority = ob2.manhattan() + o2.moved;
             if (o1Priority < o2Priority) return -1;
             else if (o1Priority > o2Priority) return 1;
             return 0;
         }
     };
 
-    private class Node<T> {
+    private static class Node<T> {
         Node<T> previous;
         T value;
+        int moved;
 
-        Node(T value) {
+        Node(T value, int moved) {
             this.value = value;
+            this.moved = moved;
         }
 
     }
 
     private Node<Board> goal;
     private Node<Board> twinGoal;
-    private MinPQ<Board> mpq;
-    private MinPQ<Board> twinMpq;
-    private int moves;
+    private MinPQ<Node<Board>> mpq;
+    private MinPQ<Node<Board>> twinMpq;
+    private int moves = -1;
     private boolean isSolvable;
     private ArrayDeque<Board> solution;
 
@@ -39,28 +45,29 @@ public class Solver {
         mpq = new MinPQ<>(boardComparator);
         twinMpq = new MinPQ<>(boardComparator);
         Board twin = initial.twin();
-        mpq.insert(initial);
-        twinMpq.insert(twin);
-        goal = new Node<>(initial);
-        twinGoal = new Node<>(twin);
-        solution = new ArrayDeque<>();
+        goal = new Node<>(initial, 0);
+        twinGoal = new Node<>(twin, 0);
+        //mpq.insert(goal);
+        //twinMpq.insert(goal);
         solve();
     }
 
-    public void solve() {
-        Board min = mpq.delMin();
-        Board twinMin = twinMpq.delMin();
+    private void solve() {
+        //Board min = mpq.delMin().value;
+        //Board twinMin = twinMpq.delMin().value;
         while (!goal.value.isGoal() && !twinGoal.value.isGoal()) {
             addNeighbor(mpq, goal);
             addNeighbor(twinMpq, twinGoal);
-            goal = next(mpq, goal);
-            twinGoal = next(twinMpq, twinGoal);
+            goal = mpq.delMin();
+            twinGoal = twinMpq.delMin();
+            delCount++;
         }
 
         if (!goal.value.isGoal()) isSolvable = false;
         else {
             isSolvable = true;
-            int moves = 0;
+            solution = new ArrayDeque<>();
+            int moves = -1;
             while (goal != null) {
                 solution.push(goal.value);
                 goal = goal.previous;
@@ -70,18 +77,20 @@ public class Solver {
         }
     }
 
-    private Node next(MinPQ<Board> mpq, Node<Board> goal) {
-        Node<Board> pre = goal;
-        Board min = mpq.delMin();
-        goal = new Node<>(min);
-        goal.previous = pre;
-        return goal;
-    }
+    private void addNeighbor(MinPQ<Node<Board>> mpq, Node<Board> goal) {
 
-    private void addNeighbor(MinPQ<Board> mpq, Node<Board> goal) {
         for (Board neighbor : goal.value.neighbors()) {
-            if (!goal.value.equals(neighbor))
-                mpq.insert(neighbor);
+            if (goal.previous == null) {
+                Node<Board> tmp = new Node(neighbor, goal.moved + 1);
+                tmp.previous = goal;
+                mpq.insert(tmp);
+                insertCount++;
+            } else if (!goal.previous.value.equals(neighbor)) {
+                Node<Board> tmp = new Node(neighbor, goal.moved + 1);
+                tmp.previous = goal;
+                mpq.insert(tmp);
+                insertCount++;
+            }
         }
     }
 
@@ -124,5 +133,6 @@ public class Solver {
                 StdOut.println(board);
 
         }
+        //StdOut.print(insertCount + "  " + delCount);
     }
 }

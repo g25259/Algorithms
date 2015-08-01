@@ -6,12 +6,13 @@ import java.util.*;
 public class Board {
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
-    final int[] blocks;
+    private final int[] blocks;
     private final boolean isGoal;
     private final int N;
     private final int hammingDistance;
     private final int manhattanDistance;
     private final int blankIndex;
+    private int[] blocks1;
 
     public Board(int[][] blocks) {
         N = blocks.length;
@@ -67,9 +68,9 @@ public class Board {
         int manhattanDistance = 0;
         for (int i = 0; i < N * N; i++) {
             if (blocks[i] == 0) continue;
-            if (blocks[i] != (i+1)) {
-                int diffRow = Math.abs((blocks[i]-1) / N - i / N);
-                int diffCol = Math.abs((blocks[i]-1) % N - i % N);
+            if (blocks[i] != (i + 1)) {
+                int diffRow = Math.abs((blocks[i] - 1) / N - i / N);
+                int diffCol = Math.abs((blocks[i] - 1) % N - i % N);
                 manhattanDistance += diffRow + diffCol;
             }
 
@@ -83,11 +84,12 @@ public class Board {
         return isGoal;
     }
 
-    private boolean initIsGoal(){
-        int count = 1;
-        for (int i = 0; i < N * N - 1; i++) {
+    private boolean initIsGoal() {
+        int count = 0;
+        for (int i = 0; i < N * N; i++) {
+            count++;
             if (blocks[i] == 0) continue;
-            if (blocks[i] != count++) return false;
+            if (blocks[i] != count) return false;
         }
         return true;
 
@@ -97,7 +99,8 @@ public class Board {
     public Board twin() {
         int[][] twinBlocks = new int[N][N];
         for (int i = 0; i < N; i++) {
-            System.arraycopy(blocks, i * N, twinBlocks[i], 0, N);
+            blocks1 = blocks;
+            System.arraycopy(blocks1, i * N, twinBlocks[i], 0, N);
         }
 
         int row = 0;
@@ -115,8 +118,9 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
+        if (y == this) return true;
         if (y == null) return false;
-        if (y.getClass() != Board.class) return false;
+        if (!(y instanceof Board)) return false;
         if (this == (Board) y) return true;
         if (N != ((Board) y).dimension()) return false;
         if (manhattanDistance != ((Board) y).manhattan()) return false;
@@ -198,9 +202,9 @@ public class Board {
         StdOut.println("Manhattan : " + initial.manhattan());
         StdOut.println("Twin : " + initial.twin());
         StdOut.println("Goal : " + initial.isGoal());
-        StdOut.println("equal : " + initial.equals(initial));
+        // StdOut.println("equal : " + initial.equals(initial));
         StdOut.println("equal : " + initial.equals(initial.twin()));
-        for(Board neghibor : initial.neighbors())
+        for (Board neghibor : initial.neighbors())
             StdOut.print(neghibor);
 
     }
