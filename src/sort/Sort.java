@@ -1,6 +1,7 @@
 package sort;
 
 import data.structures.ArrayQueue;
+import data.structures.BinaryHeap;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -62,6 +63,13 @@ public class Sort {
             else array[k] = auxArray[i++];
         }
 
+    }
+
+    public static void HeapSort(Comparable[] array) {
+        BinaryHeap bh = new BinaryHeap(array);
+        for (int i = array.length - 1; i >= 0; i--) {
+            array[i] = bh.delMax();
+        }
     }
 
     public static void QuickSort(Comparable[] array) {
@@ -169,6 +177,10 @@ public class Sort {
 
         shuffle(array);
         MergeSort(array);
+        System.out.println(Arrays.toString(array));
+
+        shuffle(array);
+        HeapSort(array);
         System.out.println(Arrays.toString(array));
 
         shuffle(array);
