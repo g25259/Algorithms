@@ -7,27 +7,29 @@ import java.util.Queue;
  * Created by MingJe on 2015/8/2.
  */
 public class BinarySearchTree<Key extends Comparable<Key>, Value> {
-    private class Node {
-        private Key key;
-        private Value value;
-        private Node left, right;
-        private int count;
+    protected class Node {
+        Key key;
+        Value value;
+        Node left, right;
+        boolean color;
+        int count;
 
-        public Node(Key k, Value v, int count) {
-            key = k;
-            value = v;
+        Node(Key k, Value v, int count, boolean color) {
+            this.key = k;
+            this.value = v;
             this.count = count;
+            this.color = color;
         }
     }
 
-    private Node root;
+    protected Node root;
 
     public void put(Key k, Value v) {
         root = put(root, k, v);
     }
 
     private Node put(Node x, Key k, Value v) {
-        if (x == null) return new Node(k, v, 1);
+        if (x == null) return new Node(k, v, 1, false);
         int cmp = k.compareTo(x.key);
         if (cmp > 0) x.right = put(x.right, k, v);
         else if (cmp < 0) x.left = put(x.left, k, v);
@@ -71,8 +73,9 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
             if (x.right == null) return x.left;
 
             Node t = x;
-
-
+            x = min(x.right);
+            x.right = deleteMin(t.right);
+            x.left = t.left;
         }
         x.count = size(x.left) + size(x.right) + 1;
         return x;
