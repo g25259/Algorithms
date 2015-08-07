@@ -1,32 +1,55 @@
 import java.util.*;
-import java.util.Queue;
 
 /**
- * Created by MingJe on 2015/8/7.
+ * Created by g2525_000 on 2015/8/7.
  */
-public class PointSET {
-    private final TreeSet<Point2D> set;
+public class KdTree {
+    private static class Node {
+        private Point2D p;      // the point
+        private RectHV rect;    // the axis-aligned rectangle corresponding to this node
+        private Node lb;        // the left/bottom subtree
+        private Node rt;        // the right/top subtree
 
-    //private final Comparator<Point2D> point2DComparator = (Point2D p1, Point2D p2) -> p1.compareTo(p2);
-    // construct an empty set of points
-    public PointSET() {
-        set = new TreeSet<>();
+        Node(Point2D p) {
+            this.p = p;
+        }
     }
+
+    private int size;
+    //private final Comparator<Point2D> kdTreeComparator = (Point2D p1, Point2D p2) -> p1.compareTo(p2);
+    // construct an empty set of points
+    private Node root;
+
 
     // is the set empty?
     public boolean isEmpty() {
-        return set.size() == 0;
+        return size == 0;
     }
 
     // number of points in the set
     public int size() {
-        return set.size();
+        return size;
     }
 
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
         if (p == null) throw new java.lang.NullPointerException("Insert null point");
-        set.add(p);
+        root = insert(p, root, false);
+        size++;
+    }
+
+    private Node insert(Point2D p, Node x, boolean type) {
+        if (x == null) return new Node(p);
+        if (!type) {
+            int cmp = Double.compare(x.p.x(), p.x());
+            if (cmp < 0) x.lb = insert(p, x.lb, true);
+            else if (cmp >= 0) x.rt = insert(p, x.rt, true);
+        } else {
+            int cmp = Double.compare(x.p.y(), p.y());
+            if (cmp < 0) x.lb = insert(p, x.lb, true);
+            else if (cmp >= 0) x.rt = insert(p, x.rt, true);
+        }
+        return x;
     }
 
     // does the set contain point p?
@@ -42,7 +65,7 @@ public class PointSET {
 
     // all points that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
-        Queue<Point2D> q = new ArrayDeque<>();
+        java.util.Queue<Point2D> q = new ArrayDeque<>();
         set.forEach(p -> {
             if (rect.contains(p)) q.add(p);
         });
@@ -67,7 +90,7 @@ public class PointSET {
     public static void main(String[] args) {
         In in = new In(args[0]);
         PointSET pointSET = new PointSET();
-        while (in.hasNextLine()){
+        while (in.hasNextLine()) {
             pointSET.insert(new Point2D(in.readDouble(), in.readDouble()));
         }
         pointSET.draw();
@@ -76,10 +99,9 @@ public class PointSET {
         System.out.println(pointSET.contains(new Point2D(0.589, 0.689)));
         System.out.println(pointSET.isEmpty());
         System.out.println(pointSET.nearest(new Point2D(0.2067778, 0.095448)));
-        RectHV rectHV = new RectHV(0.0,0.5, 0.5, 1.00);
+        RectHV rectHV = new RectHV(0.0, 0.5, 0.5, 1.00);
         rectHV.draw();
-        pointSET.range(rectHV).forEach(p->StdOut.print(p + " "));
+        pointSET.range(rectHV).forEach(p -> StdOut.print(p + " "));
         System.out.println();
     }
 }
-
