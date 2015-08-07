@@ -23,6 +23,8 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> extends BinarySearc
         c.left = x;
         c.color = x.color;
         x.color = RED;
+        x.count = size(x.left) + size(x.right) + 1;
+        c.count = size(c.left) + size(c.right) + 1;
         return c;
     }
 
@@ -33,6 +35,8 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> extends BinarySearc
         c.right = x;
         c.color = x.color;
         x.color = RED;
+        x.count = size(x.left) + size(x.right) + 1;
+        c.count = size(c.left) + size(c.right) + 1;
         return c;
     }
 
@@ -62,8 +66,8 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> extends BinarySearc
         else x.value = v;
         x.count = size(x.left) + size(x.right) + 1;
 
-        if(isRed(x.left) && isRed(x.left.left)) x = rotateRight(x);
-        if(isRed(x.left) && isRed(x.right)) filpColors(x);
+        if (isRed(x.left) && isRed(x.left.left)) x = rotateRight(x);
+        if (isRed(x.left) && isRed(x.right)) filpColors(x);
         if (isRed(x.right) && !isRed(x.left)) x = rotateleft(x);
 
         return x;
@@ -77,7 +81,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> extends BinarySearc
     public static void main(String[] args) {
         RedBlackBST<String, Integer> rbBST = new RedBlackBST<>();
         rbBST.put("S", 1);
-        rbBST.put("E", 1);
+        rbBST.put("E", 5);
         rbBST.put("A", 1);
         rbBST.put("R", 1);
         rbBST.put("C", 1);
@@ -87,8 +91,13 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> extends BinarySearc
         rbBST.put("P", 1);
         rbBST.put("L", 1);
 
+        System.out.println(rbBST.rank("E"));
         for (String s : rbBST.inOrder())
             System.out.print(s + " ");
+        System.out.println(rbBST.rangeCount("S", "T"));
+        for (String s : rbBST.rangeSearch("E", "T"))
+            System.out.print(s + " ");
+
     }
 
 }

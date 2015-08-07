@@ -51,7 +51,7 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
     public Value get(Key k) {
         Node current = root;
         while (current != null) {
-            int cmp = k.compareTo(root.key);
+            int cmp = k.compareTo(current.key);
             if (cmp < 0) current = current.left;
             else if (cmp > 0) current = current.right;
             else return current.value;
@@ -85,6 +85,7 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
         if (x.left == null) return x;
         return min(x.left);
     }
+
     public Node deleteMin(Node x) {
         if (x.left == null) return x.right;
         x.left = deleteMin(x.left);
@@ -145,6 +146,26 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
         return q;
     }
 
+    public int rangeCount (Key lo, Key hi) {
+        if (get(hi) != null)
+            return rank(hi) - rank(lo) + 1;
+        return rank(hi) - rank(lo);
+    }
+    public Queue<Key> rangeSearch(Key lo, Key hi) {
+        Queue<Key> q = new ArrayDeque<>();
+        rangeSearch(root, lo, hi, q);
+        return q;
+    }
+
+    private void rangeSearch(Node x, Key lo, Key hi, Queue<Key> q) {
+        if (x == null) return;
+        int cmpLo = x.key.compareTo(lo);
+        int cmpHi = x.key.compareTo(hi);
+        rangeSearch(x.left, lo, hi, q);
+        if (cmpLo >= 0 && cmpHi <= 0) q.add(x.key);
+        rangeSearch(x.right, lo, hi, q);
+    }
+
     private void inOrder(Node x, Queue q) {
         if (x == null) return;
         inOrder(x.left, q);
@@ -182,7 +203,9 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
         System.out.println(bst.floor("G"));
         System.out.println(bst.ceil("L"));
         System.out.println(bst.rank("G"));
+        bst.get("E");
         bst.delete("E");
+        bst.get("E");
         for (String item : bst.iterator()) System.out.println(item);
 
     }
