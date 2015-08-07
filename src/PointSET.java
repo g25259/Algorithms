@@ -67,11 +67,18 @@ public class PointSET {
     public static void main(String[] args) {
         In in = new In(args[0]);
         PointSET pointSET = new PointSET();
-        while (in.hasNextLine()){
-            pointSET.insert(new Point2D(in.readDouble(), in.readDouble()));
+        StringBuilder stringBuilder = new StringBuilder();
+        while (in.hasNextLine()) {
+            stringBuilder.append(in.readLine());
+            stringBuilder.append(" ");
+        }
+        String s = stringBuilder.toString();
+        String[] ss = s.split("\\s+");
+        for (int i = 0; i < ss.length; i+=2) {
+            pointSET.insert(new Point2D(Double.valueOf(ss[i]), Double.valueOf(ss[i+1])));
         }
         pointSET.draw();
-        pointSET.size();
+
         System.out.println(pointSET.contains(new Point2D(0.500000, 1.000000)));
         System.out.println(pointSET.contains(new Point2D(0.589, 0.689)));
         System.out.println(pointSET.isEmpty());
