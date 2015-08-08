@@ -1,3 +1,4 @@
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -37,32 +38,36 @@ public class KdTree {
 
         if (p == null) throw new java.lang.NullPointerException("Insert null point");
         if (contains(p)) return;
-        root = insert(p, root, false);
+        root = insert(p, root, false,0,0,1,1);
         size++;
-        if (size == 1) {
+        /*if (size == 1) {
             root.rect = new RectHV(0, 0, 1, 1);
-        }
+        }*/
     }
 
-    private Node insert(Point2D p, Node x, boolean type) {
-        if (x == null) return new Node(p);
+    private Node insert(Point2D p, Node x, boolean type, double x0, double y0, double x1, double y1) {
+        if (x == null) {
+            Node t = new Node(p);
+            t.rect = new RectHV(x0, y0, x1, y1);
+            return t;
+        }
         if (!type) {
-            int cmp = Double.compare(x.p.x(), p.x());
+            int cmp = Point2D.X_ORDER.compare(x.p, p);
             if (cmp > 0) {
-                x.lb = insert(p, x.lb, true);
-                x.lb.rect = new RectHV(x.rect.xmin(), x.rect.ymin(), x.p.x(), x.rect.ymax());
+                x.lb = insert(p, x.lb, true, x.rect.xmin(), x.rect.ymin(),x.p.x(),x.rect.ymax());
+                //x.lb.rect = new RectHV(x.rect.xmin(), x.rect.ymin(), x.p.x(), x.rect.ymax());
             } else if (cmp <= 0) {
-                x.rt = insert(p, x.rt, true);
-                x.rt.rect = new RectHV(x.p.x(), x.rect.ymin(), x.rect.xmax(), x.rect.ymax());
+                x.rt = insert(p, x.rt, true, x.p.x(), x.rect.ymin(), x.rect.xmax(), x.rect.ymax());
+                //x.rt.rect = new RectHV(x.p.x(), x.rect.ymin(), x.rect.xmax(), x.rect.ymax());
             }
         } else {
-            int cmp = Double.compare(x.p.y(), p.y());
+            int cmp = Point2D.Y_ORDER.compare(x.p, p);
             if (cmp > 0) {
-                x.lb = insert(p, x.lb, false);
-                x.lb.rect = new RectHV(x.rect.xmin(), x.rect.ymin(), x.rect.xmax(), x.p.y());
+                x.lb = insert(p, x.lb, false, x.rect.xmin(), x.rect.ymin(), x.rect.xmax(), x.p.y());
+                //x.lb.rect = new RectHV(x.rect.xmin(), x.rect.ymin(), x.rect.xmax(), x.p.y());
             } else if (cmp <= 0) {
-                x.rt = insert(p, x.rt, false);
-                x.rt.rect = new RectHV(x.rect.xmin(), x.p.y(), x.rect.xmax(), x.rect.ymax());
+                x.rt = insert(p, x.rt, false, x.rect.xmin(), x.p.y(), x.rect.xmax(), x.rect.ymax());
+                //x.rt.rect = new RectHV(x.rect.xmin(), x.p.y(), x.rect.xmax(), x.rect.ymax());
             }
         }
         return x;
@@ -155,7 +160,31 @@ public class KdTree {
 
     private Node nearest(Node x, Point2D p, Node candidate, boolean type) {
         nearestVisitedCount++;
-        if (x == null) return candidate;
+        if (x == null) {
+            return candidate;
+        }
+        double nearestDistance = p.distanceSquaredTo(candidate.p);
+        if (nearestDistance < x.rect.distanceSquaredTo(p)) {
+            return candidate;
+        }
+        if (x.p.distanceSquaredTo(p) < nearestDistance) {
+            candidate = x;
+        }
+        if (x.lb != null && x.lb.rect.contains(p)) {
+            candidate = nearest(x.lb, p, candidate, false);
+            nearestDistance = p.distanceSquaredTo(candidate.p);
+            if (x.rt != null && nearestDistance > x.rt.rect.distanceSquaredTo(p))
+                candidate = nearest(x.rt, p, candidate, false);
+        } else /*if (x.rt != null && x.rt.rect.contains(p))*/ {
+            candidate = nearest(x.rt, p, candidate, false);
+            nearestDistance = p.distanceSquaredTo(candidate.p);
+            if (x.lb != null && nearestDistance > x.lb.rect.distanceSquaredTo(p))
+                candidate = nearest(x.lb, p, candidate, false);
+        } /*else {
+            return candidate;
+        }*/
+        return candidate;
+        /*if (x == null) return candidate;
         double nearDistance = p.distanceSquaredTo(candidate.p);
         double tmp = x.p.distanceSquaredTo(p);
         if (tmp < nearDistance)
@@ -168,21 +197,21 @@ public class KdTree {
         }
         if (cmp <= 0) {
             candidate = nearest(x.rt, p, candidate, !type);
-            nearDistance = x.p.distanceSquaredTo(candidate.p);
+            nearDistance = p.distanceSquaredTo(candidate.p);
             if (x.lb == null) return candidate;
             double distToRect = x.lb.rect.distanceSquaredTo(p);
             if (distToRect < nearDistance) candidate = nearest(x.lb, p, candidate, type);
         } else {
             candidate = nearest(x.lb, p, candidate, !type);
-            nearDistance = x.p.distanceSquaredTo(candidate.p);
+            nearDistance = p.distanceSquaredTo(candidate.p);
             if (x.rt == null) return candidate;
             double distToRect = x.rt.rect.distanceSquaredTo(p);
-            if (distToRect < nearDistance) candidate = nearest(x.lb, p, candidate, type);
+            if (distToRect < nearDistance) candidate = nearest(x.rt, p, candidate, type);
 
         }
+        nearestVisitedCount++;
 
-
-        return candidate;
+        return candidate;*/
     }
 
     // unit testing of the methods (optional)
@@ -208,7 +237,7 @@ public class KdTree {
         RectHV rectHV = new RectHV(0.0, 0.5, 0.5, 1.00);
         StdDraw.setPenRadius();
         StdDraw.setPenColor(StdDraw.GREEN);
-        rectHV.draw();
+        //rectHV.draw();
         kdTree.range(rectHV).forEach(p -> StdOut.print(p + " "));
         System.out.println();
         Point2D p = new Point2D(0.81, 0.30);
