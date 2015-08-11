@@ -1,9 +1,7 @@
 package sort;
 
-import data.structures.ArrayQueue;
-import data.structures.BinaryHeap;
+import datastructures.BinaryHeap;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
