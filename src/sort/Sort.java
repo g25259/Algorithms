@@ -33,6 +33,29 @@ public class Sort {
         }
     }
 
+    public static void MergeSortBottomUp(Comparable[] array) {
+        for (int i = 1; i < array.length; i *= 2) {
+            for (int j = 0; j < array.length; j = j + i * 2) {
+                final int lo = j;
+                final int mid = j + i;
+                final int hi = mid + i;
+                new Thread(()->merge(array, lo, mid,  hi)).start();
+            }
+        }
+
+    }
+
+    private static void merge(Comparable[] array, int lo, int mid, int hi) {
+        Comparable[] auxArray = Arrays.copyOfRange(array, lo, hi + 1);
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; k++) {
+            if (i > mid) array[k] = auxArray[j++];
+            else if (j > hi) array[k] = auxArray[i++];
+            else if (auxArray[i].compareTo(auxArray[j]) <= 0) array[k] = auxArray[i];
+            else array[k] = auxArray[i++];
+        }
+    }
+
     public static void MergeSort(Comparable[] array) {
         Comparable[] aux = new Comparable[array.length];
         for (int i = 0; i < array.length; i++)
