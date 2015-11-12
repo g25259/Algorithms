@@ -51,7 +51,12 @@ public class Graph {
 
     public String toString() {
 
-        return null;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < adj.length; i++) {
+            final int ai = i;
+            adj[i].forEach((s) -> stringBuilder.append(ai + "->" + s + "\n"));
+        }
+        return stringBuilder.toString();
     }
 
     public static void main(String[] args) {
