@@ -30,13 +30,13 @@ public class BreadthFirstPaths implements Paths {
         int dist = 0;
         while (!queue.isEmpty()) {
             int w = queue.removeFirst();
-            dist++;
+
             for (int x : G.adj(w)) {
                 if (!marked[x]) {
                     queue.addLast(x);
                     marked[x] = true;
                     edgeTo[x] = w;
-                    distTo[x] = dist;
+                    distTo[x] = distTo[w] + 1;
                 }
             }
         }
@@ -62,7 +62,7 @@ public class BreadthFirstPaths implements Paths {
     }
 
     public static void main(String[] args) {
-        Graph G = new Graph(new In());
+        Graph G = new Digraph(new In());
         BreadthFirstPaths bfs = new BreadthFirstPaths(G, 0);
     }
 }

@@ -51,7 +51,7 @@ public class DepthFirstPaths implements Paths {
     }
 
     public static void main(String[] args) {
-        Graph G = new Graph(new In());
+        Graph G = new Digraph(new In());
         DepthFirstPaths dfs = new DepthFirstPaths(G, 0);
     }
 }

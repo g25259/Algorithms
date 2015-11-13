@@ -2,9 +2,9 @@
  * Created by MingJe on 2015/11/12.
  */
 public class Graph {
-    private final int V;
-    private Bag<Integer>[] adj;
-    private int degree;
+    protected final int V;
+    protected Bag<Integer>[] adj;
+    protected int degree;
 
     public Graph(int V) {
         this.V = V;
