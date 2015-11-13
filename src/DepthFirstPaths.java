@@ -14,6 +14,7 @@ public class DepthFirstPaths implements Paths {
         this.s = s;
         marked = new boolean[G.V()];
         edgeTo = new int[G.V()];
+        Arrays.fill(edgeTo, -1);
         dfs(s);
     }
 
@@ -31,7 +32,6 @@ public class DepthFirstPaths implements Paths {
 
     }
 
-
     @Override
     public boolean hasPathTo(int v) {
         return marked[v];
@@ -41,7 +41,17 @@ public class DepthFirstPaths implements Paths {
     public Iterable pathTo(int v) {
         if (!hasPathTo(s)) return null;
         Stack<Integer> paths = new Stack<>();
+        int w = v;
+        while (w != s) {
+            paths.push(w);
+            w = edgeTo[w];
+        }
+        paths.push(s);
+        return paths;
+    }
 
-        return null;
+    public static void main(String[] args) {
+        Graph G = new Graph(new In());
+        DepthFirstPaths dfs = new DepthFirstPaths(G, 0);
     }
 }
