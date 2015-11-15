@@ -13,7 +13,7 @@ public class ConnectedComponent {
         id = new int[G.V()];
         marked = new boolean[G.V()];
         for (int i = 0; i < G.V(); i++) {
-            if (marked[i]) {
+            if (!marked[i]) {
                 dfs(i);
                 count++;
             }
@@ -32,11 +32,14 @@ public class ConnectedComponent {
         marked[v] = true;
         id[v] = count;
         for (int w : G.adj(v)) {
-            dfs(w);
+            if (!marked[w])
+                dfs(w);
         }
     }
 
     public static void main(String[] args) {
+        Graph G = new Graph(new In());
+        ConnectedComponent cc = new ConnectedComponent(G);
 
     }
 

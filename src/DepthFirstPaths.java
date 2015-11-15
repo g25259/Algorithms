@@ -4,10 +4,10 @@ import java.util.*;
  * Created by MingJe on 2015/11/12.
  */
 public class DepthFirstPaths implements Paths {
-    private final Graph G;
-    private final int s;
-    private boolean marked[];
-    private int edgeTo[];
+    protected final Graph G;
+    protected final int s;
+    protected boolean marked[];
+    protected int edgeTo[];
 
     public DepthFirstPaths(Graph g, int s) {
         G = g;

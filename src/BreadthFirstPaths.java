@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -22,7 +21,6 @@ public class BreadthFirstPaths implements Paths {
     }
 
     private void bfs() {
-
         Deque<Integer> queue = new Deque<>();
         queue.addLast(s);
         marked[s] = true;
