@@ -1,83 +1,60 @@
-import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.*;
 import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.StdIn;
 
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 /**
  * Created by MingJe on 2015/11/15.
  */
 public class SAP {
-    private class BreadthFirstPaths implements Paths {
-        private final Digraph G;
-        private final int s;
-        private boolean marked[];
-        private int edgeTo[];
-        private int distTo[];
-
-        public BreadthFirstPaths(Digraph g, int v) {
-            G = g;
-            s = v;
-            marked = new boolean[G.V()];
-            edgeTo = new int[G.V()];
-            distTo = new int[G.V()];
-            Arrays.fill(edgeTo, -1);
-            bfs();
-
+    private class BreadthFirstPaths implements Comparable<BreadthFirstPaths> {
+        private boolean[][] marked;
+        private int[][] distTo;
+        private boolean []finished;
+        public BreadthFirstPaths() {
+            marked = new boolean[G.V()][G.V()];
+            distTo = new int[G.V()][G.V()];
+            finished = new boolean[G.V()];
+            //bfs();
         }
 
-        private void bfs() {
-            Deque<Integer> queue = new Deque<>();
-            queue.addLast(s);
-            marked[s] = true;
-            distTo[s] = 0;
-            int dist = 0;
+
+
+        private void bfs(int s) {
+            if (finished[s]) return;
+            finished[s] = true;
+            java.util.Queue<Integer> queue = new ArrayDeque<>();
+            queue.add(s);
+            marked[s][s] = true;
+            distTo[s][s] = 0;
             while (!queue.isEmpty()) {
-                int w = queue.removeFirst();
+                int w = queue.remove();
 
                 for (int x : G.adj(w)) {
-                    if (!marked[x]) {
-                        queue.addLast(x);
-                        marked[x] = true;
-                        edgeTo[x] = w;
-                        distTo[x] = distTo[w] + 1;
+                    if (!marked[s][x]) {
+                        queue.add(x);
+                        marked[s][x] = true;
+                        distTo[s][x] = distTo[s][w] + 1;
                     }
                 }
             }
 
         }
 
-        @Override
-        public boolean hasPathTo(int v) {
-            return marked[v];
-        }
-
-        @Override
-        public Iterable pathTo(int v) {
-            if (hasPathTo(v)) return null;
-            Stack<Integer> paths = new Stack<>();
-            int w = v;
-            while (w != s) {
-                paths.push(w);
-                w = edgeTo[w];
-            }
-            paths.push(s);
-            return paths;
-        }
-
     }
 
-    Digraph G;
-    Map<Map.Entry<Integer, Integer>, Map.Entry<Integer, Integer>> sap;
+    private Digraph G;
+    private Map<Map.Entry<Integer, Integer>, Map.Entry<Integer, Integer>> sap;
+    private Map<Integer, BreadthFirstPaths> bfsList;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         if (G == null) throw new java.lang.NullPointerException();
         sap = new HashMap<>();
         this.G = G;
+        bfsList = new HashMap<>();
+
     }
 
     // length of shortest ancestral path between v and w; -1 if no such path
@@ -86,8 +63,20 @@ public class SAP {
         Map.Entry<Integer, Integer> pair = new AbstractMap.SimpleEntry<Integer, Integer>(v, w);
         Map.Entry<Integer, Integer> result = sap.get(pair);
         if (result != null) return result.getValue();
-        BreadthFirstPaths BFSV = new BreadthFirstPaths(G, v);
-        BreadthFirstPaths BFSW = new BreadthFirstPaths(G, w);
+
+        BreadthFirstPaths BFSV = bfsList.get(v);
+        if (BFSV == null) {
+            BFSV = new BreadthFirstPaths(v);
+            bfsList.put(v, BFSV);
+
+        }
+
+        BreadthFirstPaths BFSW = bfsList.get(w);
+        if (BFSW == null) {
+            BFSW = new BreadthFirstPaths(w);
+            bfsList.put(w, BFSW);
+        }
+
         int min = -1;
         int ancestor = -1;
         for (int i = 0; i < G.V(); i++) {
@@ -127,7 +116,7 @@ public class SAP {
         for (int i : v) {
             for (int j : w) {
                 int length = length(i, j);
-                if (min == -1 && length < min)
+                if (min == -1 || length < min)
                     min = length;
             }
         }
@@ -142,7 +131,7 @@ public class SAP {
         for (int i : v) {
             for (int j : w) {
                 int length = length(i, j);
-                if (min == -1 && length < min) {
+                if (min == -1 || length < min) {
                     min = length;
                     ancestor = ancestor(i, j);
                 }

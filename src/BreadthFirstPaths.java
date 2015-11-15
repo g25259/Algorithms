@@ -1,4 +1,7 @@
+import edu.princeton.cs.algs4.In;
+
 import java.util.Arrays;
+import java.util.Stack;
 
 /**
  * Created by g2525_000 on 2015/11/13.
