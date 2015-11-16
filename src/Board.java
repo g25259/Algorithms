@@ -1,4 +1,8 @@
-import java.util.*;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /**
  * Created by g2525_000 on 2015/7/31.
@@ -133,7 +137,7 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        Queue<Board> neighbors = new Queue<>();
+        Queue<Board> neighbors = new ArrayDeque<>();
         int[][] twinBlocks = new int[N][N];
         for (int i = 0; i < N; i++) {
             System.arraycopy(blocks, i * N, twinBlocks[i], 0, N);
@@ -142,22 +146,22 @@ public class Board {
         int col = blankIndex % N;
         if (col != 0) {
             swap(twinBlocks, row, col - 1, col, false);
-            neighbors.enqueue(new Board(twinBlocks));
+            neighbors.add(new Board(twinBlocks));
             swap(twinBlocks, row, col - 1, col, false);
         }
         if (col != N - 1) {
             swap(twinBlocks, row, col + 1, col, false);
-            neighbors.enqueue(new Board(twinBlocks));
+            neighbors.add(new Board(twinBlocks));
             swap(twinBlocks, row, col + 1, col, false);
         }
         if (row != 0) {
             swap(twinBlocks, col, row - 1, row, true);
-            neighbors.enqueue(new Board(twinBlocks));
+            neighbors.add(new Board(twinBlocks));
             swap(twinBlocks, col, row - 1, row, true);
         }
         if (row != N - 1) {
             swap(twinBlocks, col, row + 1, row, true);
-            neighbors.enqueue(new Board(twinBlocks));
+            neighbors.add(new Board(twinBlocks));
             swap(twinBlocks, col, row + 1, row, true);
         }
         return neighbors;

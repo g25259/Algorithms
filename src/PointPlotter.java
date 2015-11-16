@@ -1,3 +1,6 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdDraw;
+
 /*************************************************************************
  *  Compilation:  javac PointPlotter.java
  *  Execution:    java PointPlotter input.txt

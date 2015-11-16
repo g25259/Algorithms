@@ -2,7 +2,8 @@ package sort;
 
 import datastructures.BinaryHeap;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Created by g2525_000 on 2015/7/26.

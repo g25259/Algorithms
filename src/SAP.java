@@ -1,41 +1,45 @@
-import edu.princeton.cs.algs4.*;
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdOut;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
  * Created by MingJe on 2015/11/15.
  */
 public class SAP {
-    private class BreadthFirstPaths implements Comparable<BreadthFirstPaths> {
-        private boolean[][] marked;
-        private int[][] distTo;
-        private boolean []finished;
+    private class BreadthFirstPaths {
+        private boolean[] marked;
+        private int[] distTo;
+
         public BreadthFirstPaths() {
-            marked = new boolean[G.V()][G.V()];
-            distTo = new int[G.V()][G.V()];
-            finished = new boolean[G.V()];
+            marked = new boolean[G.V()];
+            distTo = new int[G.V()];
+
             //bfs();
         }
 
 
 
         private void bfs(int s) {
-            if (finished[s]) return;
-            finished[s] = true;
+
             java.util.Queue<Integer> queue = new ArrayDeque<>();
             queue.add(s);
-            marked[s][s] = true;
-            distTo[s][s] = 0;
+            marked[s] = true;
+            distTo[s] = 0;
             while (!queue.isEmpty()) {
                 int w = queue.remove();
 
                 for (int x : G.adj(w)) {
-                    if (!marked[s][x]) {
+                    if (!marked[x]) {
                         queue.add(x);
-                        marked[s][x] = true;
-                        distTo[s][x] = distTo[s][w] + 1;
+                        marked[x] = true;
+                        distTo[x] = distTo[w] + 1;
                     }
                 }
             }
@@ -46,14 +50,13 @@ public class SAP {
 
     private Digraph G;
     private Map<Map.Entry<Integer, Integer>, Map.Entry<Integer, Integer>> sap;
-    private Map<Integer, BreadthFirstPaths> bfsList;
-
+    private BreadthFirstPaths BFS;
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         if (G == null) throw new java.lang.NullPointerException();
         sap = new HashMap<>();
         this.G = G;
-        bfsList = new HashMap<>();
+        BFS = new BreadthFirstPaths();
 
     }
 
@@ -64,25 +67,15 @@ public class SAP {
         Map.Entry<Integer, Integer> result = sap.get(pair);
         if (result != null) return result.getValue();
 
-        BreadthFirstPaths BFSV = bfsList.get(v);
-        if (BFSV == null) {
-            BFSV = new BreadthFirstPaths(v);
-            bfsList.put(v, BFSV);
-
-        }
-
-        BreadthFirstPaths BFSW = bfsList.get(w);
-        if (BFSW == null) {
-            BFSW = new BreadthFirstPaths(w);
-            bfsList.put(w, BFSW);
-        }
+        BFS.bfs(v);
+        BFS.bfs(w);
 
         int min = -1;
         int ancestor = -1;
         for (int i = 0; i < G.V(); i++) {
 
-            int distV = BFSV.distTo[i];
-            int distW = BFSW.distTo[i];
+            int distV = BFS.distTo[i];
+            int distW = BFS.distTo[i];
             if ((distV == 0 && v != i) || (distW == 0 && w != i)) continue;
             int length = distV + distW;
 

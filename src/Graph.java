@@ -1,3 +1,6 @@
+import edu.princeton.cs.algs4.Bag;
+import edu.princeton.cs.algs4.In;
+
 /**
  * Created by MingJe on 2015/11/12.
  */

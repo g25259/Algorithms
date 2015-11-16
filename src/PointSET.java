@@ -1,5 +1,11 @@
-import java.util.*;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.StdOut;
+
+import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Queue;
+import java.util.TreeSet;
 
 /**
  * Created by MingJe on 2015/8/7.
@@ -85,7 +91,7 @@ public class PointSET {
         System.out.println(pointSET.nearest(new Point2D(0.2067778, 0.095448)));
         RectHV rectHV = new RectHV(0.0,0.5, 0.5, 1.00);
         rectHV.draw();
-        pointSET.range(rectHV).forEach(p->StdOut.print(p + " "));
+        pointSET.range(rectHV).forEach(p-> StdOut.print(p + " "));
         System.out.println();
     }
 }

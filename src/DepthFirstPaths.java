@@ -1,4 +1,7 @@
-import java.util.*;
+import edu.princeton.cs.algs4.In;
+
+import java.util.Arrays;
+import java.util.Stack;
 
 /**
  * Created by MingJe on 2015/11/12.

@@ -1,3 +1,7 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.StdDraw;
+
 /*************************************************************************
  *  Compilation:  javac RangeSearchVisualizer.java
  *  Execution:    java RangeSearchVisualizer input.txt

@@ -5,10 +5,6 @@ import edu.princeton.cs.algs4.In;
  */
 public class Digraph extends Graph {
 
-    public Digraph(In V) {
-        super(V);
-    }
-
     public Digraph(In in) {
         super(in);
     }

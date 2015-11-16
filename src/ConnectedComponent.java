@@ -1,3 +1,5 @@
+import edu.princeton.cs.algs4.In;
+
 /**
  * Created by g2525_000 on 2015/11/13.
  */
