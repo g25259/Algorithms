@@ -3,10 +3,8 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.AbstractMap;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 
 
 /**
@@ -16,20 +14,18 @@ public class SAP {
     private class BreadthFirstPaths {
         private boolean[] marked;
         private int[] distTo;
-
-        public BreadthFirstPaths() {
+        int s;
+        public BreadthFirstPaths(int v) {
             marked = new boolean[G.V()];
             distTo = new int[G.V()];
-
-            //bfs();
+            s = v;
+            bfs();
         }
 
-
-
-        private void bfs(int s) {
-
+        private void bfs() {
             java.util.Queue<Integer> queue = new ArrayDeque<>();
             queue.add(s);
+
             marked[s] = true;
             distTo[s] = 0;
             while (!queue.isEmpty()) {
@@ -43,20 +39,19 @@ public class SAP {
                     }
                 }
             }
-
         }
 
     }
 
     private Digraph G;
     private Map<Map.Entry<Integer, Integer>, Map.Entry<Integer, Integer>> sap;
-    private BreadthFirstPaths BFS;
+
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         if (G == null) throw new java.lang.NullPointerException();
         sap = new HashMap<>();
         this.G = G;
-        BFS = new BreadthFirstPaths();
+
 
     }
 
@@ -67,25 +62,28 @@ public class SAP {
         Map.Entry<Integer, Integer> result = sap.get(pair);
         if (result != null) return result.getValue();
 
-        BFS.bfs(v);
-        BFS.bfs(w);
+        BreadthFirstPaths bfsV = new BreadthFirstPaths(v);
+        BreadthFirstPaths bfsW = new BreadthFirstPaths(w);
 
-        int min = -1;
+        int min = Integer.MAX_VALUE;
         int ancestor = -1;
         for (int i = 0; i < G.V(); i++) {
 
-            int distV = BFS.distTo[i];
-            int distW = BFS.distTo[i];
+            int distV = bfsV.distTo[i];
+            int distW = bfsW.distTo[i];
             if ((distV == 0 && v != i) || (distW == 0 && w != i)) continue;
             int length = distV + distW;
 
-            if (length < min || min == -1) {
+            if (length < min) {
                 min = length;
                 ancestor = i;
             }
 
         }
+        if (min == Integer.MAX_VALUE)
+            min = -1;
         sap.put(pair, new AbstractMap.SimpleEntry<>(ancestor, min));
+
         return min;
     }
 
@@ -105,26 +103,28 @@ public class SAP {
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
         if (v == null || w == null) throw new java.lang.NullPointerException();
-        int min = -1;
+        int min = Integer.MAX_VALUE;
         for (int i : v) {
             for (int j : w) {
                 int length = length(i, j);
-                if (min == -1 || length < min)
+                if (length < min)
                     min = length;
             }
         }
+        if (min == Integer.MAX_VALUE)
+            min = -1;
         return min;
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
         if (v == null || w == null) throw new java.lang.NullPointerException();
-        int min = -1;
+        int min = Integer.MAX_VALUE;
         int ancestor = -1;
         for (int i : v) {
             for (int j : w) {
                 int length = length(i, j);
-                if (min == -1 || length < min) {
+                if (length < min) {
                     min = length;
                     ancestor = ancestor(i, j);
                 }

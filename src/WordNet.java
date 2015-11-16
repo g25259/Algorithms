@@ -97,8 +97,8 @@ public class WordNet {
             if (synset.synonym.contains(nounB))
                 setB.add(synset.id);
         }
-        int distance = sap.length(setA, setB);
 
+        int distance = sap.length(setA, setB);
 
         return distance;
     }
