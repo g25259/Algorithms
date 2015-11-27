@@ -5,16 +5,19 @@ public class Edge implements Comparable<Edge> {
 
     private int V, W;
     private double weight;
+
     //Create a weighted edge V-W
     public Edge(int v, int w, double weight) {
         V = v;
         W = w;
         this.weight = weight;
     }
+
     //either endpoint
     public int either() {
         return V;
     }
+
     //the endpoint that's not V
     public int other(int v) {
         if (V == v) {
@@ -26,14 +29,17 @@ public class Edge implements Comparable<Edge> {
     }
 
 
-    public double weight(){ {
-        return weight;
+    public double weight() {
+        {
+            return weight;
+        }
     }
-    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return V + " " + W + " " + weight;
     }
+
     @Override
     public int compareTo(Edge that) {
         if (this.weight < that.weight) return -1;
