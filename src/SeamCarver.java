@@ -1,11 +1,8 @@
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.Queue;
 
 import java.awt.Color;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Stack;
+
 
 /**
  * Created by MingJe on 2015/11/27.
@@ -21,7 +18,7 @@ public class SeamCarver {
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
         if (picture == null) throw new java.lang.NullPointerException();
-        this.picture = picture;
+        this.picture = new Picture(picture);
         energy = new double[picture.height()][picture.width()];
         colors = new Color[picture.height()][picture.width()];
         for (int i = 0; i < colors.length; i++) {
@@ -38,11 +35,11 @@ public class SeamCarver {
     // current picture
     public Picture picture() {
         Picture newPic;
-        if (isTranspose) {
-            tranpose();
-            isTranspose = false;
-        }
         if (isModified) {
+            if (isTranspose) {
+                transpose();
+                isTranspose = false;
+            }
             newPic = new Picture(colors[0].length, colors.length);
             for (int i = 0; i < colors.length; i++) {
                 for (int j = 0; j < colors[0].length; j++) {
@@ -52,7 +49,8 @@ public class SeamCarver {
             isModified = false;
             picture = newPic;
         }
-        return picture;
+        //newPic = new Picture(picture);
+        return new Picture(picture);
     }
 
     // width of current picture
@@ -69,22 +67,11 @@ public class SeamCarver {
     public double energy(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height)
             throw new java.lang.IndexOutOfBoundsException("Wrong parameters in energy fun.");
+        double reEnergy;
+        if (!isTranspose) reEnergy = energy[y][x];
+        else reEnergy = energy[x][y];
 
-        if (!isTranspose && energy[y][x] != -1) return energy[y][x];
-        else if (isTranspose && energy[x][y] != -1) return energy[y][x];
-
-        Color left = picture.get(x - 1, y),
-                right = picture.get(x + 1, y),
-                up = picture.get(x, y - 1),
-                down = picture.get(x, y + 1);
-        double deltaXSquare = Math.pow(left.getBlue() - right.getBlue(), 2)
-                + Math.pow(left.getGreen() - right.getGreen(), 2)
-                + Math.pow(left.getRed() - right.getRed(), 2);
-        double deltaYSquare = Math.pow(up.getBlue() - down.getBlue(), 2)
-                + Math.pow(up.getGreen() - down.getGreen(), 2)
-                + Math.pow(up.getRed() - down.getRed(), 2);
-        energy[y][x] = Math.sqrt(deltaXSquare + deltaYSquare);
-        return energy[y][x];
+        return reEnergy;
 
     }
 
@@ -97,17 +84,34 @@ public class SeamCarver {
             energy[i][energy[i].length - 1] = 1000;
 
         }
-        for (int i = 0; i < energy.length; i++) {
-            for (int j = 0; j < energy[0].length; j++) {
-                energy(j, i);
+        for (int i = 1; i < energy.length - 1; i++) {
+            for (int j = 1; j < energy[0].length - 1; j++) {
+                Color left = picture.get(j - 1, i),
+                        right = picture.get(j + 1, i),
+                        up = picture.get(j, i - 1),
+                        down = picture.get(j, i + 1);
+
+                int b = left.getBlue() - right.getBlue();
+                int g = left.getGreen() - right.getGreen();
+                int r = left.getRed() - right.getRed();
+                double deltaXSquare = b * b + g * g + r * r;
+
+                b = up.getBlue() - down.getBlue();
+                g = up.getGreen() - down.getGreen();
+                r = up.getRed() - down.getRed();
+                double deltaYSquare = b * b + g * g + r * r;
+
+                energy[i][j] = Math.sqrt(deltaXSquare + deltaYSquare);
             }
         }
     }
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        if (!isTranspose)
-            tranpose();
+        if (!isTranspose) {
+            transpose();
+            isTranspose = true;
+        }
         return findSeam();
     }
 
@@ -115,7 +119,7 @@ public class SeamCarver {
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
         if (isTranspose) {
-            tranpose();
+            transpose();
             isTranspose = false;
         }
         return findSeam();
@@ -203,27 +207,41 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
-        if (seam == null) throw new java.lang.NullPointerException();
-        if (seam.length != colors[0].length || colors.length <= 1) throw new java.lang.IllegalArgumentException();
-        for (int i = 1; i < seam.length; i++) {
-            if (Math.abs(seam[i] - seam[i - 1]) > 1)
-                throw new java.lang.IllegalArgumentException();
+        if (!isTranspose) {
+            transpose();
+            isTranspose = true;
         }
-        tranpose();
-        removeVerticalSeam(seam);
-        tranpose();
+        removeSeam(seam);
+        //transpose();
 
     }
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        if (isTranspose) {
+            transpose();
+            isTranspose = false;
+        }
+        removeSeam(seam);
+    }
+
+    private void removeSeam(int[] seam) {
         if (seam == null) throw new java.lang.NullPointerException();
         if (seam.length != colors.length || colors[0].length <= 1) throw new java.lang.IllegalArgumentException();
-        for (int i = 1; i < seam.length; i++) {
-            if (Math.abs(seam[i] - seam[i - 1]) > 1)
+        for (int i = 0; i < seam.length; i++) {
+            if (i != 0 && Math.abs(seam[i] - seam[i - 1]) > 1)
+                throw new java.lang.IllegalArgumentException();
+            else if (isTranspose && (seam[i] < 0 || seam[i] > height - 1))
+                throw new java.lang.IllegalArgumentException();
+            else if (!isTranspose && (seam[i] < 0 || seam[i] > width - 1))
                 throw new java.lang.IllegalArgumentException();
 
         }
+        if (isTranspose && height <= 1)
+            throw new java.lang.IllegalArgumentException();
+        else if (!isTranspose && width <= 1)
+            throw new java.lang.IllegalArgumentException();
+
         isModified = true;
         Color[][] newColor = new Color[colors.length][colors[0].length - 1];
         double[][] newEnergy = new double[energy.length][energy[0].length - 1];
@@ -233,11 +251,14 @@ public class SeamCarver {
             System.arraycopy(energy[i], 0, newEnergy[i], 0, seam[i]);
             System.arraycopy(energy[i], seam[i] + 1, newEnergy[i], seam[i], energy[i].length - seam[i] - 1);
         }
+        if (isTranspose)
+            height--;
+        else width--;
         colors = newColor;
         energy = newEnergy;
     }
 
-    private void tranpose() {
+    private void transpose() {
         Color[][] transColor = new Color[colors[0].length][colors.length];
         double[][] tranEnergy = new double[energy[0].length][energy.length];
         for (int i = 0; i < transColor.length; i++) {
