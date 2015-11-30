@@ -1,3 +1,5 @@
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+
 /**
  * Created by MingJe on 2015/7/12.
  */
