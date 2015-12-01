@@ -86,24 +86,36 @@ public class SeamCarver {
         }
         for (int i = 1; i < energy.length - 1; i++) {
             for (int j = 1; j < energy[0].length - 1; j++) {
-                Color left = picture.get(j - 1, i),
-                        right = picture.get(j + 1, i),
-                        up = picture.get(j, i - 1),
-                        down = picture.get(j, i + 1);
-
-                int b = left.getBlue() - right.getBlue();
-                int g = left.getGreen() - right.getGreen();
-                int r = left.getRed() - right.getRed();
-                double deltaXSquare = b * b + g * g + r * r;
-
-                b = up.getBlue() - down.getBlue();
-                g = up.getGreen() - down.getGreen();
-                r = up.getRed() - down.getRed();
-                double deltaYSquare = b * b + g * g + r * r;
-
-                energy[i][j] = Math.sqrt(deltaXSquare + deltaYSquare);
+                computeEnergy(energy, i, j);
             }
         }
+    }
+
+    private void computeEnergy(double[][] energy, int i, int j) {
+        /*Color left = picture.get(j - 1, i), right = picture.get(j + 1, i),
+                up = picture.get(j, i - 1),
+                down = picture.get(j, i + 1);
+        */
+        if (j == energy.length - 1) {
+            energy[i][j] = 1000;
+            return;
+        } else if (j == 0) {
+            energy[i][j] = 1000;
+            return;
+        }
+        Color left = colors[i][j - 1], right = colors[i][j + 1],
+                up = colors[i - 1][j], down = colors[i + 1][j];
+        int b = left.getBlue() - right.getBlue();
+        int g = left.getGreen() - right.getGreen();
+        int r = left.getRed() - right.getRed();
+        double deltaXSquare = b * b + g * g + r * r;
+
+        b = up.getBlue() - down.getBlue();
+        g = up.getGreen() - down.getGreen();
+        r = up.getRed() - down.getRed();
+        double deltaYSquare = b * b + g * g + r * r;
+
+        energy[i][j] = Math.sqrt(deltaXSquare + deltaYSquare);
     }
 
     // sequence of indices for horizontal seam
@@ -250,12 +262,17 @@ public class SeamCarver {
             System.arraycopy(colors[i], seam[i] + 1, newColor[i], seam[i], colors[i].length - seam[i] - 1);
             System.arraycopy(energy[i], 0, newEnergy[i], 0, seam[i]);
             System.arraycopy(energy[i], seam[i] + 1, newEnergy[i], seam[i], energy[i].length - seam[i] - 1);
+
+            if (i != 0 && i != height -1 && seam[i] < width - 1) computeEnergy(newEnergy, i, seam[i]);
+            if (i != 0 && i != height -1 && seam[i] > 0) computeEnergy(newEnergy, i, seam[i] - 1);
+
         }
         if (isTranspose)
             height--;
         else width--;
         colors = newColor;
         energy = newEnergy;
+
     }
 
     private void transpose() {
