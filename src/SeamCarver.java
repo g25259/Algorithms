@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Arrays;
 
 
@@ -99,7 +99,7 @@ public class SeamCarver {
         Arrays.fill(energy[0], 1000);
         Arrays.fill(energy[energy.length - 1], 1000);
         for (int i = 1; i < energy.length - 1; i++) {
-            Arrays.fill(energy[i], -1);
+            //Arrays.fill(energy[i], -1);
             energy[i][0] = 1000;
             energy[i][energy[i].length - 1] = 1000;
 
@@ -122,8 +122,8 @@ public class SeamCarver {
         int b = left.getBlue() - right.getBlue();
         int g = left.getGreen() - right.getGreen();
         int r = left.getRed() - right.getRed();*/
-        if (j < 0 || j >= energy.length) return;
-        if (j == 0 || j == energy.length - 1) {
+        if (j < 0 || j >= energy[0].length) return;
+        if (j == 0 || j == energy[0].length - 1) {
             energy[i][j] = 1000;
             return;
         }
@@ -266,6 +266,7 @@ public class SeamCarver {
     private void removeSeam(int[] seam) {
         if (seam == null) throw new java.lang.NullPointerException();
         if (seam.length != colors.length || colors[0].length <= 1) throw new java.lang.IllegalArgumentException();
+
         for (int i = 0; i < seam.length; i++) {
             if (i != 0 && Math.abs(seam[i] - seam[i - 1]) > 1)
                 throw new java.lang.IllegalArgumentException();
