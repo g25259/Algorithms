@@ -13,7 +13,7 @@ public class SeamCarver {
     private boolean isTranspose;
     private boolean isModified;
     private int width, height;
-    //private Color[][] colorsTmp;
+
     private int[][] colors;
     private final int R = 255 << 16;
     private final int G = 255 << 8;
@@ -24,11 +24,10 @@ public class SeamCarver {
         if (picture == null) throw new java.lang.NullPointerException();
         this.picture = new Picture(picture);
         energy = new double[picture.height()][picture.width()];
-        //colorsTmp = new Color[picture.height()][picture.width()];
         colors = new int[picture.height()][picture.width()];
         for (int i = 0; i < colors.length; i++) {
             for (int j = 0; j < colors[0].length; j++) {
-                //colorsTmp[i][j] = picture.get(j, i);
+
                 Color tmp = picture.get(j, i);
                 colors[i][j] |= tmp.getRed();
                 colors[i][j] = colors[i][j] << 8;
@@ -52,12 +51,7 @@ public class SeamCarver {
                 transpose();
                 isTranspose = false;
             }
-            /*newPic = new Picture(colorsTmp[0].length, colorsTmp.length);
-            for (int i = 0; i < colorsTmp.length; i++) {
-                for (int j = 0; j < colorsTmp[0].length; j++) {
-                    newPic.set(j, i, colorsTmp[i][j]);
-                }
-            }*/
+
             newPic = new Picture(colors[0].length, colors.length);
             for (int i = 0; i < colors.length; i++) {
                 for (int j = 0; j < colors[0].length; j++) {
@@ -99,29 +93,19 @@ public class SeamCarver {
         Arrays.fill(energy[0], 1000);
         Arrays.fill(energy[energy.length - 1], 1000);
         for (int i = 1; i < energy.length - 1; i++) {
-            //Arrays.fill(energy[i], -1);
             energy[i][0] = 1000;
             energy[i][energy[i].length - 1] = 1000;
 
         }
         for (int i = 1; i < energy.length - 1; i++) {
             for (int j = 1; j < energy[0].length - 1; j++) {
-                computeEnergy(energy, i, j);
+                computeEnergy(energy, colors, i, j);
             }
         }
     }
 
-    private void computeEnergy(double[][] energy, int i, int j) {
-        /*Color left = picture.get(j - 1, i), right = picture.get(j + 1, i),
-                up = picture.get(j, i - 1),
-                down = picture.get(j, i + 1);
-        */
+    private void computeEnergy(double[][] energy, int[][] colors, int i, int j) {
 
-        /*Color left = colorsTmp[i][j - 1], right = colorsTmp[i][j + 1],
-                up = colorsTmp[i - 1][j], down = colorsTmp[i + 1][j];
-        int b = left.getBlue() - right.getBlue();
-        int g = left.getGreen() - right.getGreen();
-        int r = left.getRed() - right.getRed();*/
         if (j < 0 || j >= energy[0].length) return;
         if (j == 0 || j == energy[0].length - 1) {
             energy[i][j] = 1000;
@@ -131,10 +115,7 @@ public class SeamCarver {
         int g = ((colors[i][j - 1] & G) - (colors[i][j + 1] & G)) >> 8;
         int b = (colors[i][j - 1] & B) - (colors[i][j + 1] & B);
         double deltaXSquare = b * b + g * g + r * r;
-        /*
-        b = up.getBlue() - down.getBlue();
-        g = up.getGreen() - down.getGreen();
-        r = up.getRed() - down.getRed();*/
+
         r = ((colors[i - 1][j] & R) - (colors[i + 1][j] & R)) >> 16;
         g = ((colors[i - 1][j] & G) - (colors[i + 1][j] & G)) >> 8;
         b = (colors[i - 1][j] & B) - (colors[i + 1][j] & B);
@@ -222,7 +203,7 @@ public class SeamCarver {
     }
 
     private void visit(int row, int column, double[][] distTo, int[][] edgeTo) {
-        //if (row == energy.length - 1)
+
         if (row + 1 <= energy.length - 1 && column - 1 >= 0) {
             if (distTo[row + 1][column - 1] > distTo[row][column] + energy[row + 1][column - 1]) {
                 distTo[row + 1][column - 1] = distTo[row][column] + energy[row + 1][column - 1];
@@ -250,7 +231,7 @@ public class SeamCarver {
             isTranspose = true;
         }
         removeSeam(seam);
-        //transpose();
+
 
     }
 
@@ -276,6 +257,10 @@ public class SeamCarver {
                 throw new java.lang.IllegalArgumentException();
 
         }
+        double[][] aa = new double[20][20];
+        for (int i = 0; i < 20; i++) {
+            aa[i] = new double[20];
+        }
         if (isTranspose && height <= 1)
             throw new java.lang.IllegalArgumentException();
         else if (!isTranspose && width <= 1)
@@ -290,9 +275,9 @@ public class SeamCarver {
             System.arraycopy(energy[i], 0, newEnergy[i], 0, seam[i]);
             System.arraycopy(energy[i], seam[i] + 1, newEnergy[i], seam[i], energy[i].length - seam[i] - 1);
 
-            if (i != 0 && i != height - 1) {
-                computeEnergy(newEnergy, i, seam[i]);
-                computeEnergy(newEnergy, i, seam[i] - 1);
+            if (i > 0 && i < colors.length - 1) {
+                computeEnergy(newEnergy, newColor, i, seam[i]);
+                computeEnergy(newEnergy, newColor, i, seam[i] - 1);
             }
 
         }
@@ -316,65 +301,5 @@ public class SeamCarver {
         colors = transColor;
         energy = tranEnergy;
     }
-    /*
-    private void removeSeam(int[] seam) {
-        if (seam == null) throw new java.lang.NullPointerException();
-        if (seam.length != colorsTmp.length || colorsTmp[0].length <= 1) throw new java.lang.IllegalArgumentException();
-        for (int i = 0; i < seam.length; i++) {
-            if (i != 0 && Math.abs(seam[i] - seam[i - 1]) > 1)
-                throw new java.lang.IllegalArgumentException();
-            else if (isTranspose && (seam[i] < 0 || seam[i] > height - 1))
-                throw new java.lang.IllegalArgumentException();
-            else if (!isTranspose && (seam[i] < 0 || seam[i] > width - 1))
-                throw new java.lang.IllegalArgumentException();
 
-        }
-        if (isTranspose && height <= 1)
-            throw new java.lang.IllegalArgumentException();
-        else if (!isTranspose && width <= 1)
-            throw new java.lang.IllegalArgumentException();
-
-        isModified = true;
-        Color[][] newColor = new Color[colorsTmp.length][colorsTmp[0].length - 1];
-        double[][] newEnergy = new double[energy.length][energy[0].length - 1];
-        for (int i = 0; i < colorsTmp.length; i++) {
-            System.arraycopy(colorsTmp[i], 0, newColor[i], 0, seam[i]);
-            System.arraycopy(colorsTmp[i], seam[i] + 1, newColor[i], seam[i], colorsTmp[i].length - seam[i] - 1);
-            System.arraycopy(energy[i], 0, newEnergy[i], 0, seam[i]);
-            System.arraycopy(energy[i], seam[i] + 1, newEnergy[i], seam[i], energy[i].length - seam[i] - 1);
-
-            if (i != 0 && i != height - 1) {
-                if (seam[i] == width - 1) energy[i][seam[i]] = 1000;
-                else if (seam[i] < width - 2) computeEnergy(newEnergy, i, seam[i]);
-
-                if (seam[i] == 0)
-                    energy[i][seam[i]] = 1000;
-                else if (seam[i] > 0) {
-                    computeEnergy(newEnergy, i, seam[i] - 1);
-                }
-            }
-
-        }
-        if (isTranspose)
-            height--;
-        else width--;
-        colorsTmp = newColor;
-        energy = newEnergy;
-
-    }*/
-
-    /*
-    private void transpose() {
-        Color[][] transColor = new Color[colorsTmp[0].length][colorsTmp.length];
-        double[][] tranEnergy = new double[energy[0].length][energy.length];
-        for (int i = 0; i < transColor.length; i++) {
-            for (int j = 0; j < transColor[0].length; j++) {
-                tranEnergy[i][j] = energy[j][i];
-                transColor[i][j] = colorsTmp[j][i];
-
-            }
-        }
-        colorsTmp = transColor;
-        energy = tranEnergy;
-    }*/
 }
