@@ -15,6 +15,29 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Stopwatch;
 
 public class ResizeDemo {
+    private static final boolean HORIZONTAL   = true;
+    private static final boolean VERTICAL     = false;
+    private static void printSeam(SeamCarver carver, int[] seam, boolean direction) {
+        double totalSeamEnergy = 0.0;
+
+        for (int row = 0; row < carver.height(); row++) {
+            for (int col = 0; col < carver.width(); col++) {
+                double energy = carver.energy(col, row);
+                String marker = " ";
+                if ((direction == HORIZONTAL && row == seam[col]) ||
+                        (direction == VERTICAL   && col == seam[row])) {
+                    marker = "*";
+                    totalSeamEnergy += energy;
+                }
+                StdOut.printf("%7.2f%s ", energy, marker);
+            }
+            StdOut.println();
+        }
+        // StdOut.println();
+        StdOut.printf("Total energy = %f\n", totalSeamEnergy);
+        StdOut.println();
+        StdOut.println();
+    }
     public static void main(String[] args) {
         if (args.length != 3) {
             StdOut.println("Usage:\njava ResizeDemo [image filename] [num cols to remove] [num rows to remove]");
@@ -29,12 +52,22 @@ public class ResizeDemo {
         SeamCarver sc = new SeamCarver(inputImg);
 
         Stopwatch sw = new Stopwatch();
-
+        StdOut.printf("Vertical seam: { ");
+        int[] verticalSeamp = sc.findHorizontalSeam();
+        for (int x : verticalSeamp)
+            StdOut.print(x + " ");
+        StdOut.println("}");
+        printSeam(sc, verticalSeamp, HORIZONTAL);
         for (int i = 0; i < removeRows; i++) {
             int[] horizontalSeam = sc.findHorizontalSeam();
             sc.removeHorizontalSeam(horizontalSeam);
         }
-
+        StdOut.printf("Vertical seam: { ");
+        verticalSeamp = sc.findHorizontalSeam();
+        for (int x : verticalSeamp)
+            StdOut.print(x + " ");
+        StdOut.println("}");
+        printSeam(sc, verticalSeamp, HORIZONTAL);
         for (int i = 0; i < removeColumns; i++) {
             int[] verticalSeam = sc.findVerticalSeam();
             sc.removeVerticalSeam(verticalSeam);

@@ -8,7 +8,6 @@ import java.util.Arrays;
  * Created by MingJe on 2015/11/27.
  */
 public class SeamCarver {
-    private Picture picture;
     private double[][] energy;
     private boolean isTranspose;
     private boolean isModified;
@@ -22,7 +21,6 @@ public class SeamCarver {
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
         if (picture == null) throw new java.lang.NullPointerException();
-        this.picture = new Picture(picture);
         energy = new double[picture.height()][picture.width()];
         colors = new int[picture.height()][picture.width()];
         for (int i = 0; i < colors.length; i++) {
@@ -46,7 +44,7 @@ public class SeamCarver {
     // current picture
     public Picture picture() {
         Picture newPic;
-        if (isModified) {
+        //if (isModified) {
             if (isTranspose) {
                 transpose();
                 isTranspose = false;
@@ -61,10 +59,10 @@ public class SeamCarver {
                 }
             }
             isModified = false;
-            picture = newPic;
-        }
+
+        //}
         //newPic = new Picture(picture);
-        return new Picture(picture);
+        return new Picture(newPic);
     }
 
     // width of current picture
@@ -151,11 +149,11 @@ public class SeamCarver {
         Arrays.fill(distTo[0], 1000);
 
         for (int i = 1; i < distTo.length; i++) {
-            Arrays.fill(distTo[i], Double.MAX_VALUE);
+            Arrays.fill(distTo[i], Double.POSITIVE_INFINITY);
             Arrays.fill(edgeTo[i], -1);
         }
 
-        double minDist = Double.MAX_VALUE;
+        double minDist = Double.POSITIVE_INFINITY;
         int minIdx = -1;
         for (int column = 0; column < energy[0].length; column++) {
             int row = 0;
@@ -257,16 +255,13 @@ public class SeamCarver {
                 throw new java.lang.IllegalArgumentException();
 
         }
-        double[][] aa = new double[20][20];
-        for (int i = 0; i < 20; i++) {
-            aa[i] = new double[20];
-        }
+
         if (isTranspose && height <= 1)
             throw new java.lang.IllegalArgumentException();
         else if (!isTranspose && width <= 1)
             throw new java.lang.IllegalArgumentException();
 
-        isModified = true;
+
         int[][] newColor = new int[colors.length][colors[0].length - 1];
         double[][] newEnergy = new double[energy.length][energy[0].length - 1];
         for (int i = 0; i < colors.length; i++) {
@@ -275,15 +270,15 @@ public class SeamCarver {
             System.arraycopy(energy[i], 0, newEnergy[i], 0, seam[i]);
             System.arraycopy(energy[i], seam[i] + 1, newEnergy[i], seam[i], energy[i].length - seam[i] - 1);
 
-            if (i > 0 && i < colors.length - 1) {
-                computeEnergy(newEnergy, newColor, i, seam[i]);
-                computeEnergy(newEnergy, newColor, i, seam[i] - 1);
-            }
-
+        }
+        for (int i = 1; i < colors.length - 1; i++) {
+            computeEnergy(newEnergy, newColor, i, seam[i]);
+            computeEnergy(newEnergy, newColor, i, seam[i] - 1);
         }
         if (isTranspose)
             height--;
         else width--;
+        isModified = true;
         colors = newColor;
         energy = newEnergy;
     }
