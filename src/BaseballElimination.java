@@ -99,6 +99,11 @@ public class BaseballElimination {
     public Iterable<String> certificateOfElimination(String team) {
         int idx = team(team);
         if (idx == -1) throw new java.lang.IllegalArgumentException();
+        if (wins(team) + remaining(team) < mostWin) {
+            List r = new ArrayList<>();
+            r.add(teams[0]);
+            return r;
+        }
         return FordFulkerson(team);
     }
 
@@ -181,8 +186,8 @@ public class BaseballElimination {
                         R.add(teams[i]);
                     }
                 } else if (i > idx){
-                    if (fordFulkerson.inCut(1 + numOfGameVertices() + i)) {
-                        R.add(teams[i - 1]);
+                    if (fordFulkerson.inCut(1 + numOfGameVertices() + i - 1)) {
+                        R.add(teams[i]);
                     }
             }
             }
