@@ -89,7 +89,7 @@ public class BaseballElimination {
         if (idx == -1) throw new java.lang.IllegalArgumentException();
         if (wins(team) + remaining(team) < mostWin)
             return true;
-
+        if (FordFulkerson(team) != null) return true;
         return false;
     }
 
@@ -97,7 +97,7 @@ public class BaseballElimination {
     public Iterable<String> certificateOfElimination(String team) {
         int idx = team(team);
         if (idx == -1) throw new java.lang.IllegalArgumentException();
-        return new ArrayList<>();
+        return FordFulkerson(team);
     }
 
     private int team(String team) {
@@ -107,27 +107,96 @@ public class BaseballElimination {
         return -1;
     }
 
-    private int eliminationNet(String team) {
+    private FlowNetwork eliminationNet(String team) {
         int idx = team(team);
         int numOfGameVertices = numOfGameVertices();
         FlowNetwork fn = new FlowNetwork(numOfGameVertices + teams.length - 1 + 2);
+        boolean jumpI = false;
+        int count = 1;
         for (int i = 0; i < teams.length; i++) {
-            if (i == idx) continue;
+            boolean jumpJ = false;
+            if (i == idx) {
+                jumpI = true;
+                continue;
+            }
             for (int j = i + 1; j < teams.length; j++) {
-                if (i < idx) {
-                    fn.addEdge(new FlowEdge(0, i + j, against[i][j]));
-                    fn.addEdge(new FlowEdge(i + j,
-                            1 + numOfGameVertices + i, Double.POSITIVE_INFINITY));
-                    fn.addEdge(new FlowEdge(i + j,
-                            1 + numOfGameVertices + i + j, Double.POSITIVE_INFINITY));
-                } else {
-                    fn.addEdge(new FlowEdge(0, i + j - 1, against[i][j]));
+                if (j == idx) {
+                    jumpJ = true;
+                    continue;
                 }
+                if (i > idx)
+                    jumpJ = true;
+                if (!jumpI) {
+                    if (!jumpJ) {
+                        fn.addEdge(new FlowEdge(0, count, against[i][j]));
+                        fn.addEdge(new FlowEdge(count,
+                                1 + numOfGameVertices + i, Double.POSITIVE_INFINITY));
+                        fn.addEdge(new FlowEdge(count,
+                                1 + numOfGameVertices + j, Double.POSITIVE_INFINITY));
+                    } else {
+                        fn.addEdge(new FlowEdge(0, count, against[i][j]));
+                        fn.addEdge(new FlowEdge(count,
+                                1 + numOfGameVertices + i, Double.POSITIVE_INFINITY));
+                        fn.addEdge(new FlowEdge(count,
+                                1 + numOfGameVertices + j - 1, Double.POSITIVE_INFINITY));
+                    }
+                } else {
+
+                    fn.addEdge(new FlowEdge(0, count, against[i][j]));
+                    fn.addEdge(new FlowEdge(count,
+                            1 + numOfGameVertices + i - 1, Double.POSITIVE_INFINITY));
+                    fn.addEdge(new FlowEdge(count,
+                            1 + numOfGameVertices + j - 1, Double.POSITIVE_INFINITY));
+                }
+                ++count;
             }
         }
+        count = 0;
+        for (int i = 0; i < teams.length; i++) {
+            int capacity = wins(team) + remaining(team) - wins[i];
+            if (capacity < 0) capacity =0;
+            if (i < idx) {
+                fn.addEdge(new FlowEdge(1 + numOfGameVertices + i,
+                        fn.V() - 1, capacity));
+            } else if (i > idx) fn.addEdge(new FlowEdge(numOfGameVertices + i,
+                    fn.V() - 1, capacity));
+
+        }
+        return fn;
 
     }
 
+    private Iterable<String> FordFulkerson(String team) {
+        FlowNetwork fn = eliminationNet(team);
+        int fullValue = fullValue(fn);
+        FordFulkerson fordFulkerson = new FordFulkerson(fn, 0, fn.V() - 1);
+        if (fordFulkerson.value() < fullValue) {
+            List<String> R = new ArrayList<>();
+            int idx = team(team);
+            for (int i = 0; i < teams.length; i++) {
+                if (i < idx) {
+                    if (fordFulkerson.inCut(1 + numOfGameVertices() + i)) {
+                        R.add(teams[i]);
+                    }
+                } else if (i > idx){
+                    if (fordFulkerson.inCut(1 + numOfGameVertices() + i)) {
+                        R.add(teams[i - 1]);
+                    }
+            }
+            }
+            return R;
+        }
+        return null;
+
+    }
+
+    private int fullValue(FlowNetwork fn) {
+        int value = 0;
+        for (FlowEdge e : fn.adj(0)) {
+            value += e.capacity();
+        }
+        return value;
+    }
     private int numOfGameVertices() {
         return (teams.length - 2) * (teams.length - 1) / 2;
     }
