@@ -17,7 +17,7 @@ public class BaseballElimination {
     private int[][] against;
     private FlowNetwork flowNetwork;
     private int mostWin;
-
+    private int mostWinIdx;
     // create a baseball division from given filename in format specified below
     public BaseballElimination(String filename) {
         In in = new In(filename);
@@ -31,8 +31,10 @@ public class BaseballElimination {
         while (count < numOfTeams) {
             teams[count] = in.readString();
             wins[count] = in.readInt();
-            if (wins[count] > mostWin)
+            if (wins[count] > mostWin) {
                 mostWin = wins[count];
+                mostWinIdx = count;
+            }
             losses[count] = in.readInt();
             remaining[count] = in.readInt();
             for (int i = 0; i < numOfTeams; i++) {
@@ -101,7 +103,7 @@ public class BaseballElimination {
         if (idx == -1) throw new java.lang.IllegalArgumentException();
         if (wins(team) + remaining(team) < mostWin) {
             List r = new ArrayList<>();
-            r.add(teams[0]);
+            r.add(teams[mostWinIdx]);
             return r;
         }
         return FordFulkerson(team);
