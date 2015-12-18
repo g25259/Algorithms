@@ -4,7 +4,7 @@ import edu.princeton.cs.algs4.Queue;
  * Created by MingJe on 2015/12/16.
  */
 public class TrieST<Value> {
-    private static final int R = 256;
+    private static final int R = 26;
     private Node root;
 
 
@@ -23,7 +23,7 @@ public class TrieST<Value> {
             x.value = val;
             return x;
         }
-        char c = key.charAt(d);
+        char c = (char) (key.charAt(d) - 'A');
         x.next[c] = put(x.next[c], key, val, d + 1);
         return x;
     }
@@ -37,7 +37,7 @@ public class TrieST<Value> {
     private Node get(Node x, String key, int d) {
         if (x == null) return null;
         if (d == key.length()) return x;
-        char c = key.charAt(d);
+        char c = (char) (key.charAt(d) - 'A');
         return get(x.next[c], key, d + 1);
     }
 
@@ -63,7 +63,29 @@ public class TrieST<Value> {
         Node x = get(root, prefix, 0);
         Queue<String> queue = new Queue<>();
         collect(x, prefix, queue);
+        if (queue.size() == 0)
+            return null;
         return queue;
+    }
+
+    public boolean isKeyWithPrefix(String prefix) {
+        Node x = get(root, prefix, 0);
+        Queue<String> q = new Queue<>();
+        dig(x, prefix, q);
+        if (q.size() == 0)
+            return false;
+        return true;
+    }
+
+    private void dig(Node x, String prefix, Queue<String> queue) {
+        if (x == null) return;
+        if (x.value != null) {
+            queue.enqueue(prefix);
+            return;
+        }
+        for (char c = 0; c < R; c++) {
+            collect(x.next[c], prefix + c, queue);
+        }
     }
 
     public String longestPrefixOf(String query) {

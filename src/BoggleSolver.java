@@ -1,22 +1,21 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.StdOut;
-
-import java.util.HashSet;
+import edu.princeton.cs.algs4.SymbolDigraph;
 
 
 /**
  * Created by g2525_000 on 2015/12/18.
  */
 public class BoggleSolver {
-    private HashSet<String> dictionary;
+    private TrieST<Integer> dictionary;
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
-        this.dictionary = new HashSet();
+        this.dictionary = new TrieST<>();
         for (int i = 0; i < dictionary.length; i++) {
-            this.dictionary.add(dictionary[i]);
+            this.dictionary.put(dictionary[i], 0);
         }
 
     }
@@ -24,60 +23,67 @@ public class BoggleSolver {
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
         SET<String> validWords = new SET<>();
+
         for (int i = 0; i < board.rows(); i++) {
             for (int j = 0; j < board.cols(); j++) {
-                dfs(board, i, j, "", validWords);
+                boolean[][]test = new boolean[board.rows()][board.cols()];
+                dfs(board, i, j, "", validWords, test);
             }
         }
         return validWords;
     }
 
-    private void dfs(BoggleBoard board, int row, int col, String prefix, SET<String> validWords) {
+    private void dfs(BoggleBoard board, int row, int col, String prefix, SET<String> validWords, boolean[][] used) {
         if (row > 0) {
-            check(board, row - 1, col, prefix, validWords);
-            if (col > 0)
-                check(board, row - 1, col - 1, prefix, validWords);
+            check(board, row - 1, col, prefix, validWords, used);
+            used[row -1][col] = false;
+            if (col > 0) {
+                check(board, row - 1, col - 1, prefix, validWords, used);
+
+            }
             if (col < board.cols() - 1)
-                check(board, row - 1, col + 1, prefix, validWords);
+                check(board, row - 1, col + 1, prefix, validWords, used);
         }
         if (row < board.rows() - 1) {
-            check(board, row + 1, col, prefix, validWords);
+            check(board, row + 1, col, prefix, validWords, used);
             if (col > 0)
-                check(board, row + 1, col - 1, prefix, validWords);
+                check(board, row + 1, col - 1, prefix, validWords, used);
             if (col < board.cols() - 1)
-                check(board, row + 1, col + 1, prefix, validWords);
+                check(board, row + 1, col + 1, prefix, validWords, used);
         }
         if (col > 0) {
-            check(board, row, col - 1, prefix, validWords);
+            check(board, row, col - 1, prefix, validWords, used);
         }
         if (col < board.cols() - 1) {
-            check(board, row, col + 1, prefix, validWords);
+            check(board, row, col + 1, prefix, validWords, used);
         }
     }
 
-    private void check(BoggleBoard board, int row, int col, String prefix, SET<String> validWords) {
+    private void check(BoggleBoard board, int row, int col, String prefix, SET<String> validWords, boolean[][] used) {
         char letter = board.getLetter(row, col);
         String neighbor;
-        if (!contain(prefix, letter)) {
+
+        if (!used[row][col]) {
+
             if (letter == 'Q') {
                 neighbor = prefix + letter + 'U';
             } else neighbor = prefix + letter;
-
-            if (neighbor.length() >= 3) {
-                if (dictionary.contains(neighbor))
-                    validWords.add(neighbor);
+            if (dictionary.isKeyWithPrefix(neighbor) ) {
+                /*boolean[][] copyUsed = new boolean[used.length][used[0].length];
+                for (int i = 0; i < used.length; i++) {
+                    System.arraycopy(used[i], 0, copyUsed[i], 0, used[0].length);
+                }*/
+                used[row][col] = true;
+                if (neighbor.length() >= 3) {
+                    if (dictionary.contains(neighbor))
+                        validWords.add(neighbor);
+                }
+                dfs(board, row, col, neighbor, validWords, used);
             }
-            dfs(board, row, col, neighbor, validWords);
         }
+
     }
 
-    private boolean contain(String prefix, char letter) {
-        for (int i = 0; i < prefix.length(); i++) {
-            if (prefix.charAt(i) == letter)
-                return true;
-        }
-        return false;
-    }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
@@ -110,10 +116,12 @@ public class BoggleSolver {
         BoggleSolver solver = new BoggleSolver(dictionary);
         BoggleBoard board = new BoggleBoard(args[1]);
         int score = 0;
+        long startTime = System.currentTimeMillis();
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
+        StdOut.println((System.currentTimeMillis() - startTime) / 1000);
     }
 }
