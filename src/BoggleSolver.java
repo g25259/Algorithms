@@ -1,86 +1,156 @@
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.SymbolDigraph;
 
+import java.util.HashSet;
 
 /**
  * Created by g2525_000 on 2015/12/18.
  */
 public class BoggleSolver {
-    private TrieST<Integer> dictionary;
+    private class TrieST {
+        private static final int R = 26;
+        private Node root;
+
+
+        public class Node {
+            protected int value = -1;
+            private Node[] next = new Node[R];
+            private int prefix = 1;
+        }
+
+        public void put(String key, int val) {
+            root = put(root, key, val, 0);
+        }
+
+        private Node put(Node x, String key, int val, int d) {
+            if (x == null) x = new Node();
+            if (d == key.length()) {
+                x.value = val;
+                return x;
+            }
+            char c = (char) (key.charAt(d) - 'A');
+            x.next[c] = put(x.next[c], key, val, d + 1);
+            return x;
+        }
+
+        public int get(String key) {
+            Node x = get(root, key, 0);
+            if (x == null) return -1;
+            return  x.value;
+        }
+
+        public Node get(Node x, String key, int d) {
+            if (x == null) return null;
+            if (d == key.length()) return x;
+            char c = (char) (key.charAt(d) - 'A');
+            return get(x.next[c], key, d + 1);
+        }
+
+        public boolean contains(String key) {
+            return get(key) != -1;
+        }
+
+
+    }
+
+    private TrieST dictionary;
+    private boolean[][] used;
+    private StringBuilder prefix;
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
-        this.dictionary = new TrieST<>();
+        this.dictionary = new TrieST();
+        prefix = new StringBuilder();
         for (int i = 0; i < dictionary.length; i++) {
             this.dictionary.put(dictionary[i], 0);
         }
+
 
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        SET<String> validWords = new SET<>();
-
+        HashSet<String> validWords = new HashSet<>();
+        used = new boolean[board.rows()][board.cols()];
         for (int i = 0; i < board.rows(); i++) {
             for (int j = 0; j < board.cols(); j++) {
-                boolean[][]test = new boolean[board.rows()][board.cols()];
-                dfs(board, i, j, "", validWords, test);
+                dfs(board, i, j, validWords, dictionary.root);
             }
         }
         return validWords;
     }
 
-    private void dfs(BoggleBoard board, int row, int col, String prefix, SET<String> validWords, boolean[][] used) {
+    private void dfs(BoggleBoard board, int row, int col, HashSet<String> validWords, TrieST.Node x) {
         if (row > 0) {
-            check(board, row - 1, col, prefix, validWords, used);
-            used[row -1][col] = false;
+            boolean isEnter = check(board, row - 1, col, validWords, x);
+            if (isEnter) used[row - 1][col] = false;
             if (col > 0) {
-                check(board, row - 1, col - 1, prefix, validWords, used);
-
+                isEnter = check(board, row - 1, col - 1, validWords, x);
+                if (isEnter) used[row - 1][col - 1] = false;
             }
-            if (col < board.cols() - 1)
-                check(board, row - 1, col + 1, prefix, validWords, used);
+            if (col < board.cols() - 1) {
+                isEnter = check(board, row - 1, col + 1, validWords, x);
+                if (isEnter) used[row - 1][col + 1] = false;
+            }
         }
         if (row < board.rows() - 1) {
-            check(board, row + 1, col, prefix, validWords, used);
-            if (col > 0)
-                check(board, row + 1, col - 1, prefix, validWords, used);
-            if (col < board.cols() - 1)
-                check(board, row + 1, col + 1, prefix, validWords, used);
+            boolean isEnter = check(board, row + 1, col, validWords, x);
+            if (isEnter) used[row + 1][col] = false;
+            if (col > 0) {
+                isEnter = check(board, row + 1, col - 1, validWords, x);
+                if (isEnter) used[row + 1][col - 1] = false;
+            }
+            if (col < board.cols() - 1) {
+                isEnter = check(board, row + 1, col + 1, validWords, x);
+                if (isEnter) used[row + 1][col + 1] = false;
+            }
         }
         if (col > 0) {
-            check(board, row, col - 1, prefix, validWords, used);
+            boolean isEnter = check(board, row, col - 1, validWords, x);
+            if (isEnter) used[row][col - 1] = false;
         }
         if (col < board.cols() - 1) {
-            check(board, row, col + 1, prefix, validWords, used);
+            boolean isEnter = check(board, row, col + 1, validWords, x);
+            if (isEnter) used[row][col + 1] = false;
         }
     }
 
-    private void check(BoggleBoard board, int row, int col, String prefix, SET<String> validWords, boolean[][] used) {
+    private boolean check(BoggleBoard board, int row, int col, HashSet<String> validWords, TrieST.Node x) {
         char letter = board.getLetter(row, col);
-        String neighbor;
 
         if (!used[row][col]) {
 
             if (letter == 'Q') {
-                neighbor = prefix + letter + 'U';
-            } else neighbor = prefix + letter;
-            if (dictionary.isKeyWithPrefix(neighbor) ) {
-                /*boolean[][] copyUsed = new boolean[used.length][used[0].length];
-                for (int i = 0; i < used.length; i++) {
-                    System.arraycopy(used[i], 0, copyUsed[i], 0, used[0].length);
-                }*/
-                used[row][col] = true;
-                if (neighbor.length() >= 3) {
-                    if (dictionary.contains(neighbor))
-                        validWords.add(neighbor);
-                }
-                dfs(board, row, col, neighbor, validWords, used);
+                prefix.append(letter);
+                prefix.append('U');
+                x = x.next['Q' - 'A'];
+                if (x != null)
+                    x = x.next['U' - 'A'];
+            } else {
+                prefix.append(letter);
+                x = x.next[letter - 'A'];
             }
+            if (x != null && x.prefix == 1) {
+                used[row][col] = true;
+                if (prefix.length() >= 3) {
+                    if (x.value != -1)
+                        validWords.add(prefix.toString());
+                }
+                dfs(board, row, col, validWords, x);
+            }
+
+            if (letter == 'Q') {
+                prefix.deleteCharAt(prefix.length() - 1);
+                prefix.deleteCharAt(prefix.length() - 1);
+            } else prefix.deleteCharAt(prefix.length() - 1);
+
+
+            return true;
         }
+        return false;
 
     }
 
@@ -122,6 +192,6 @@ public class BoggleSolver {
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
-        StdOut.println((System.currentTimeMillis() - startTime) / 1000);
+        StdOut.println((System.currentTimeMillis() - startTime));
     }
 }
