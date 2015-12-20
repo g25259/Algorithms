@@ -74,9 +74,9 @@ public class BoggleSolver {
     public Iterable<String> getAllValidWords(BoggleBoard board) {
         validWords = new HashSet<>();
         used = new boolean[board.rows()][board.cols()];
-        for (int i = 0; i < board.rows(); i++) {
-            for (int j = 0; j < board.cols(); j++) {
-                dfs(board, i, j, dictionary.root);
+        for (int i = 0; i < board.rows() ; i++) {
+            for (int j = 0; j < board.cols() ; j++) {
+                check(board, i, j, dictionary.root);
             }
         }
         return validWords;
