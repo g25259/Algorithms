@@ -1,7 +1,6 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.SymbolDigraph;
 
 
 /**
@@ -26,7 +25,7 @@ public class BoggleSolver {
 
         for (int i = 0; i < board.rows(); i++) {
             for (int j = 0; j < board.cols(); j++) {
-                boolean[][]test = new boolean[board.rows()][board.cols()];
+                boolean[][] test = new boolean[board.rows()][board.cols()];
                 dfs(board, i, j, "", validWords, test);
             }
         }
@@ -36,26 +35,35 @@ public class BoggleSolver {
     private void dfs(BoggleBoard board, int row, int col, String prefix, SET<String> validWords, boolean[][] used) {
         if (row > 0) {
             check(board, row - 1, col, prefix, validWords, used);
-            used[row -1][col] = false;
+            //used[row - 1][col] = false;
             if (col > 0) {
                 check(board, row - 1, col - 1, prefix, validWords, used);
-
+                //used[row - 1][col - 1] = false;
             }
-            if (col < board.cols() - 1)
+            if (col < board.cols() - 1) {
                 check(board, row - 1, col + 1, prefix, validWords, used);
+                //used[row - 1][col + 1] = false;
+            }
         }
         if (row < board.rows() - 1) {
             check(board, row + 1, col, prefix, validWords, used);
-            if (col > 0)
+            //used[row + 1][col] = false;
+            if (col > 0) {
                 check(board, row + 1, col - 1, prefix, validWords, used);
-            if (col < board.cols() - 1)
+                //used[row + 1][col - 1] = false;
+            }
+            if (col < board.cols() - 1) {
                 check(board, row + 1, col + 1, prefix, validWords, used);
+                //used[row + 1][col + 1] = false;
+            }
         }
         if (col > 0) {
             check(board, row, col - 1, prefix, validWords, used);
+            //used[row][col - 1] = false;
         }
         if (col < board.cols() - 1) {
             check(board, row, col + 1, prefix, validWords, used);
+            //used[row][col + 1] = false;
         }
     }
 
@@ -64,21 +72,20 @@ public class BoggleSolver {
         String neighbor;
 
         if (!used[row][col]) {
-
             if (letter == 'Q') {
                 neighbor = prefix + letter + 'U';
             } else neighbor = prefix + letter;
-            if (dictionary.isKeyWithPrefix(neighbor) ) {
-                /*boolean[][] copyUsed = new boolean[used.length][used[0].length];
+            if (dictionary.isKeyWithPrefix(neighbor)) {
+                boolean[][] copyUsed = new boolean[used.length][used[0].length];
                 for (int i = 0; i < used.length; i++) {
                     System.arraycopy(used[i], 0, copyUsed[i], 0, used[0].length);
-                }*/
+                }
                 used[row][col] = true;
                 if (neighbor.length() >= 3) {
                     if (dictionary.contains(neighbor))
                         validWords.add(neighbor);
                 }
-                dfs(board, row, col, neighbor, validWords, used);
+                dfs(board, row, col, neighbor, validWords, copyUsed);
             }
         }
 
