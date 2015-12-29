@@ -34,7 +34,7 @@ public class TrieST<Value> {
         return (Value) x.value;
     }
 
-    private Node get(Node x, String key, int d) {
+    public Node get(Node x, String key, int d) {
         if (x == null) return null;
         if (d == key.length()) return x;
         char c = (char) (key.charAt(d) - 'A');
@@ -68,8 +68,8 @@ public class TrieST<Value> {
         return queue;
     }
 
-    public boolean isKeyWithPrefix(String prefix) {
-        Node x = get(root, prefix, 0);
+    public boolean isKeyWithPrefix(Node x, String prefix) {
+        //Node x = get(root, prefix, 0);
         Queue<String> q = new Queue<>();
         dig(x, prefix, q);
         if (q.size() == 0)
